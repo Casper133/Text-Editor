@@ -3,8 +3,8 @@ object MainForm: TMainForm
   Top = 0
   Caption = 'Text Editor'
   ClientHeight = 500
-  ClientWidth = 700
-  Color = clMenu
+  ClientWidth = 800
+  Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -13
@@ -2125,159 +2125,246 @@ object MainForm: TMainForm
     FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
     FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
     FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
-  Menu = MainMenu
+  Menu = mMenu
   OldCreateOrder = False
   PixelsPerInch = 120
   TextHeight = 16
   object RichEdit: TRichEdit
     Left = 0
     Top = 0
-    Width = 700
+    Width = 800
     Height = 500
     Align = alClient
-    Font.Charset = RUSSIAN_CHARSET
+    Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'Tahoma'
+    Font.Height = -15
+    Font.Name = 'Courier New'
     Font.Style = []
     ParentFont = False
     TabOrder = 0
     Zoom = 100
-    ExplicitLeft = 8
-    ExplicitTop = 56
+    ExplicitWidth = 793
+    ExplicitHeight = 498
   end
-  object MainMenu: TMainMenu
-    Left = 496
-    Top = 448
-    object N1: TMenuItem
-      Caption = #1060#1072#1081#1083
-      object Open: TMenuItem
-        Caption = #1054#1090#1082#1088#1099#1090#1100
-        OnClick = OpenClick
-      end
-      object Save: TMenuItem
-        Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
-      end
-      object SaveAs: TMenuItem
-        Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1082#1072#1082'...'
-        OnClick = SaveAsClick
-      end
-      object Separator1: TMenuItem
-        Caption = '-'
-      end
-      object Exit: TMenuItem
-        Caption = #1042#1099#1093#1086#1076
-        OnClick = ExitClick
-      end
+  object aList: TActionList
+    Left = 64
+    Top = 440
+    object aNewFile: TAction
+      Category = 'acFile'
+      Caption = #1053#1086#1074#1099#1081
+      ShortCut = 16462
     end
-    object Edit: TMenuItem
-      Caption = #1055#1088#1072#1074#1082#1072
-      object Undo: TMenuItem
-        Caption = #1054#1090#1084#1077#1085#1072
-      end
-      object Cut: TMenuItem
-        Caption = #1042#1099#1088#1077#1079#1072#1090#1100
-      end
-      object Copy: TMenuItem
-        Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100
-      end
-      object Insert: TMenuItem
-        Caption = #1042#1089#1090#1072#1074#1080#1090#1100
-      end
-      object SelectAll: TMenuItem
-        Caption = #1042#1099#1076#1077#1083#1080#1090#1100' '#1074#1089#1105
-      end
-      object Separator2: TMenuItem
-        Caption = '-'
-      end
-      object Indents: TMenuItem
-        Caption = #1054#1090#1089#1090#1091#1087#1099
-        object InsertIndent: TMenuItem
-          Caption = #1042#1089#1090#1072#1074#1080#1090#1100' '#1086#1090#1089#1090#1091#1087
-        end
-        object DeleteIndent: TMenuItem
-          Caption = #1059#1076#1072#1083#1080#1090#1100' '#1086#1090#1089#1090#1091#1087
-        end
-      end
-      object DeleteLine: TMenuItem
-        Caption = #1059#1076#1072#1083#1080#1090#1100' '#1089#1090#1088#1086#1082#1091
-      end
+    object aUndo: TAction
+      Category = 'acEdit'
+      Caption = #1054#1090#1084#1077#1085#1072
+      ShortCut = 16474
     end
-    object Search: TMenuItem
-      Caption = #1055#1086#1080#1089#1082
-      object Find: TMenuItem
-        Caption = #1053#1072#1081#1090#1080'...'
-      end
-      object Replacement: TMenuItem
-        Caption = #1047#1072#1084#1077#1085#1072'...'
-      end
+    object aOpenFile: TAction
+      Category = 'acFile'
+      Caption = #1054#1090#1082#1088#1099#1090#1100
+      ShortCut = 16463
     end
-    object N19: TMenuItem
-      Caption = #1050#1086#1076#1080#1088#1086#1074#1082#1080
-      object UTF8: TMenuItem
-        Caption = #1055#1088#1077#1086#1073#1088#1072#1079#1086#1074#1072#1090#1100' '#1074' UTF-8'
-      end
-      object UTF8BOM: TMenuItem
-        Caption = #1055#1088#1077#1086#1073#1088#1072#1079#1086#1074#1072#1090#1100' '#1074' UTF-8 '#1089' BOM'
-      end
-      object ISO8859: TMenuItem
-        Caption = #1055#1088#1077#1086#1073#1088#1072#1079#1086#1074#1072#1090#1100' '#1074' ISO-8859-1'
-      end
-      object UTF16: TMenuItem
-        Caption = #1055#1088#1077#1086#1073#1088#1072#1079#1086#1074#1072#1090#1100' '#1074' UTF-16'
-      end
+    object aSaveFile: TAction
+      Category = 'acFile'
+      Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
+      ShortCut = 16467
     end
-    object Syntaxes: TMenuItem
-      Caption = #1057#1080#1085#1090#1072#1082#1089#1080#1089#1099
-      object C: TMenuItem
-        Caption = 'C'
-      end
-      object CPlusPlus: TMenuItem
-        Caption = 'C++'
-      end
-      object CSharp: TMenuItem
-        Caption = 'C#'
-      end
-      object Java: TMenuItem
-        Caption = 'Java'
-      end
-      object Python: TMenuItem
-        Caption = 'Python'
-      end
-      object JavaScript: TMenuItem
-        Caption = 'JavaScript'
-      end
-      object Ruby: TMenuItem
-        Caption = 'Ruby'
-      end
-      object PHP: TMenuItem
-        Caption = 'PHP'
-      end
-      object Delphi: TMenuItem
-        Caption = 'Delphi'
-      end
-      object FASM: TMenuItem
-        Caption = 'FASM'
-      end
+    object aSaveAsFile: TAction
+      Category = 'acFile'
+      Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1082#1072#1082'...'
+      ShortCut = 49235
     end
-    object AboutProgram: TMenuItem
+    object aExit: TAction
+      Category = 'acFile'
+      Caption = #1042#1099#1093#1086#1076
+      ShortCut = 32856
+      OnExecute = aExitExecute
+    end
+    object aRedo: TAction
+      Category = 'acEdit'
+      Caption = #1055#1086#1074#1090#1086#1088
+      ShortCut = 24666
+    end
+    object aCut: TAction
+      Category = 'acEdit'
+      Caption = #1042#1099#1088#1077#1079#1072#1090#1100
+      ShortCut = 16472
+    end
+    object aCopy: TAction
+      Category = 'acEdit'
+      Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100
+      ShortCut = 16451
+    end
+    object aPaste: TAction
+      Category = 'acEdit'
+      Caption = #1042#1089#1090#1072#1074#1080#1090#1100
+      ShortCut = 16470
+    end
+    object aDelete: TAction
+      Category = 'acEdit'
+      Caption = #1059#1076#1072#1083#1080#1090#1100
+      ShortCut = 46
+    end
+    object aSelectAll: TAction
+      Category = 'acEdit'
+      Caption = #1042#1099#1076#1077#1083#1080#1090#1100' '#1074#1089#1105
+      ShortCut = 16449
+    end
+    object aInsertIndent: TAction
+      Category = 'acEdit'
+      Caption = #1042#1089#1090#1072#1074#1080#1090#1100' '#1086#1090#1089#1090#1091#1087
+      ShortCut = 9
+    end
+    object aDeleteIndent: TAction
+      Category = 'acEdit'
+      Caption = #1059#1076#1072#1083#1080#1090#1100' '#1086#1090#1089#1090#1091#1087
+      ShortCut = 8201
+    end
+    object aFind: TAction
+      Category = 'acSearch'
+      Caption = #1053#1072#1081#1090#1080'...'
+      ShortCut = 16454
+    end
+    object aReplace: TAction
+      Category = 'acSearch'
+      Caption = #1047#1072#1084#1077#1085#1072'...'
+      ShortCut = 16456
+    end
+    object aCLang: TAction
+      Category = 'acSyntax'
+      Caption = 'C'
+    end
+    object aCSharp: TAction
+      Category = 'acSyntax'
+      Caption = 'C#'
+    end
+    object aCPlusPlus: TAction
+      Category = 'acSyntax'
+      Caption = 'C++'
+    end
+    object aGoLang: TAction
+      Category = 'acSyntax'
+      Caption = 'Go'
+    end
+    object aJava: TAction
+      Category = 'acSyntax'
+      Caption = 'Java'
+    end
+    object aJavaScript: TAction
+      Category = 'acSyntax'
+      Caption = 'JavaScript'
+    end
+    object aPython: TAction
+      Category = 'acSyntax'
+      Caption = 'Python'
+    end
+    object aRuby: TAction
+      Category = 'acSyntax'
+      Caption = 'Ruby'
+    end
+    object aAboutProgram: TAction
+      Category = 'acAbout'
       Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077'...'
     end
   end
-  object OpenFileDialog: TOpenDialog
-    Left = 528
+  object mMenu: TMainMenu
+    Left = 16
     Top = 448
-  end
-  object SaveFileDialog: TSaveDialog
-    Left = 560
-    Top = 448
-  end
-  object FindTextDialog: TFindDialog
-    Left = 592
-    Top = 448
-  end
-  object ReplaceTextDialog: TReplaceDialog
-    Left = 624
-    Top = 448
+    object mFile: TMenuItem
+      Caption = #1060#1072#1081#1083
+      object mNew: TMenuItem
+        Action = aNewFile
+      end
+      object mOpen: TMenuItem
+        Action = aOpenFile
+      end
+      object mSave: TMenuItem
+        Action = aSaveFile
+      end
+      object mSaveAs: TMenuItem
+        Action = aSaveAsFile
+      end
+      object N5: TMenuItem
+        Caption = '-'
+      end
+      object mExit: TMenuItem
+        Action = aExit
+      end
+    end
+    object mEdit: TMenuItem
+      Caption = #1055#1088#1072#1074#1082#1072
+      object mUndo: TMenuItem
+        Action = aUndo
+      end
+      object mRedo: TMenuItem
+        Action = aRedo
+      end
+      object mCut: TMenuItem
+        Action = aCut
+      end
+      object mCopy: TMenuItem
+        Action = aCopy
+      end
+      object mPaste: TMenuItem
+        Action = aPaste
+      end
+      object mDelete: TMenuItem
+        Action = aDelete
+      end
+      object mSelectAll: TMenuItem
+        Action = aSelectAll
+      end
+      object N8: TMenuItem
+        Caption = '-'
+      end
+      object mInsertIndent: TMenuItem
+        Action = aInsertIndent
+      end
+      object mDeleteIndent: TMenuItem
+        Action = aDeleteIndent
+      end
+    end
+    object mSearch: TMenuItem
+      Caption = #1055#1086#1080#1089#1082
+      object mFind: TMenuItem
+        Action = aFind
+      end
+      object mReplace: TMenuItem
+        Action = aReplace
+      end
+    end
+    object mSyntaxes: TMenuItem
+      Caption = #1057#1080#1085#1090#1072#1082#1089#1080#1089#1099
+      object mCLang: TMenuItem
+        Action = aCLang
+      end
+      object mCSharp: TMenuItem
+        Action = aCSharp
+      end
+      object mCPlusPlus: TMenuItem
+        Action = aCPlusPlus
+      end
+      object mGoLang: TMenuItem
+        Action = aGoLang
+      end
+      object mJava: TMenuItem
+        Action = aJava
+      end
+      object mJavaScript: TMenuItem
+        Action = aJavaScript
+      end
+      object mPython: TMenuItem
+        Action = aPython
+      end
+      object mRuby: TMenuItem
+        Action = aRuby
+      end
+    end
+    object mAbout: TMenuItem
+      Caption = '?'
+      object mAboutProgram: TMenuItem
+        Action = aAboutProgram
+      end
+    end
   end
 end

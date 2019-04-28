@@ -2,7 +2,6 @@ Program TextEditor;
 
 Uses
   Vcl.Forms,
-  System.SysUtils,
   Main in 'Main.pas' {MainForm};
 
 {$R *.res}
