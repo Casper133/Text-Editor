@@ -1,20 +1,52 @@
-Program CreatingSyntaxFiles;
+Unit SyntaxFilesGenerator;
 
-{$APPTYPE CONSOLE}
+Interface
+
+Uses
+  SysUtils;
 
 Type
-  TReservedArray = array [1..50] of String[15];
+  TReserved = array [1..50] of String[15];
+  TMLineComment = array [1..2] of String[3];
+
   TSyntaxInfo = record
     FileExtension: String[5];
-    ReservedWords: TReservedArray;
+    ReservedWords: TReserved;
     SingleLineComment: String[2];
-    MultiLineComment: array [1..2] of String[6];
+    MultiLineComment: TMLineComment;
   end;
 
+Procedure createFiles;
+Procedure runSyntaxFilesGenerator;
+
+Implementation
+
+Procedure createSyntaxFile(FileName: String; FileExt: ShortString;
+                           rWords: TReserved; sLineComment: ShortString;
+                           mLineCommentBegin, mLineCommentEnd: ShortString);
 Var
   SyntaxRecord: TSyntaxInfo;
-  FileInfo: file of TSyntaxInfo;
-  CLangReserved: TReservedArray =
+  FileInfo: File of TSyntaxInfo;
+
+begin
+  AssignFile(FileInfo, 'syntaxes/' + FileName);
+  Rewrite(FileInfo);
+  with SyntaxRecord do
+  begin
+    FileExtension := FileExt;
+    ReservedWords := RWords;
+    SingleLineComment := sLineComment;
+    MultiLineComment[1] := mLineCommentBegin;
+    MultiLineComment[2] := mLineCommentEnd;
+  end;
+  Write(FileInfo, SyntaxRecord);
+  Close(FileInfo);
+end;
+
+
+Procedure createFiles;
+Const
+  CLangReserved: TReserved =
                   ('auto', 'break', 'case', 'char', 'const', 'continue',
                    'default', 'do', 'double', 'else', 'enum', 'extern',
                    'float', 'for', 'goto', 'if', 'int', 'long',
@@ -22,7 +54,7 @@ Var
                    'struct', 'switch', 'typedef', 'union', 'unsigned', 'void',
                    'volatile', 'while', '', '', '', '', '', '', '', '', '', '',
                    '', '', '', '', '', '', '', '');
-  CPlusPlusReserved: TReservedArray =
+  CPlusPlusReserved: TReserved =
                   ('and', 'and_eq', 'asm', 'bitand', 'bitor', 'bool', 'break',
                    'case', 'catch', 'char', 'class', 'compl', 'const',
                    'continue', 'default', 'do', 'double', 'else', 'enum',
@@ -32,7 +64,7 @@ Var
                    'signed', 'static', 'struct', 'switch', 'syncronized',
                    'throw', 'try', 'virtual', 'void', 'volatile', 'while',
                    'xor', 'xor_eq');
-  CSharpReserved: TReservedArray =
+  CSharpReserved: TReserved =
                   ('abstract', 'as', 'base', 'bool', 'break', 'byte', 'case',
                    'catch', 'char', 'class', 'const', 'continue', 'default',
                    'delegate', 'do', 'double', 'else', 'enum', 'finally',
@@ -41,14 +73,14 @@ Var
                    'namespace', 'override', 'private', 'protected', 'public',
                    'return', 'short', 'static', 'struct', 'switch', 'throw',
                    'try', 'using', 'virtual', 'void', 'volatile', 'while');
-  GoLangReserved: TReservedArray =
+  GoLangReserved: TReserved =
                   ('break', 'case', 'chan', 'const', 'continue', 'default',
                    'defer', 'else', 'fallthrough', 'for', 'func', 'go', 'goto',
                    'if', 'import', 'interface', 'map', 'package', 'range',
                    'return', 'select', 'struct', 'switch', 'type', 'var', '',
                    '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
                    '', '', '', '', '', '', '', '', '');
-  JavaReserved: TReservedArray =
+  JavaReserved: TReserved =
                   ('abstract', 'assert', 'boolean', 'break', 'byte', 'case',
                    'catch', 'char', 'class', 'const', 'continue', 'default',
                    'do', 'double', 'else', 'enum', 'extends', 'final',
@@ -58,7 +90,7 @@ Var
                    'short', 'static', 'strictfp', 'super', 'switch',
                    'synchronized', 'this', 'throw', 'throws', 'transient',
                    'try', 'void', 'volatile', 'while');
-  JavaScriptReserved: TReservedArray =
+  JavaScriptReserved: TReserved =
                   ('await', 'break', 'case', 'catch', 'class', 'const',
                    'continue', 'debugger', 'default', 'delete', 'do', 'else',
                    'export', 'extends', 'finally', 'for', 'function', 'if',
@@ -66,125 +98,41 @@ Var
                    'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void',
                    'while', 'with', 'yield', '', '', '', '', '', '', '', '',
                    '', '', '', '', '', '', '', '');
-  PythonReserved: TReservedArray =
+  KotlinReserved: TReserved =
+                  ('as', 'break', 'class', 'continue', 'do', 'else', 'false',
+                   'for', 'fun', 'if', 'in', 'interface', 'is', 'null',
+                   'object', 'package', 'return', 'super', 'this', 'throw',
+                   'true', 'try', 'typealias', 'val', 'var', 'when', 'while',
+                   '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
+                   '', '', '', '', '', '', '', '');
+  PythonReserved: TReserved =
                   ('and', 'as', 'assert', 'async', 'await', 'break', 'class',
                    'continue', 'def', 'del', 'elif', 'else', 'except', 'False',
                    'finally', 'for', 'from', 'global', 'if', 'import', 'in',
                    'is', 'lambda', 'None', 'nonlocal', 'not', 'or', 'pass',
                    'raise', 'return', 'True', 'try', 'while', 'with', 'yield',
                    '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
-  RubyReserved: TReservedArray =
-                  ('BEGIN', 'END', '__ENCODING__', '__END__', '__FILE__',
-                   '__LINE__', 'alias', 'and', 'begin', 'break', 'case',
-                   'class', 'def', 'defined HUY', 'do', 'else', 'elsif', 'end',
-                   'ensure', 'false', 'for', 'if', 'in', 'module', 'next',
-                   'nil', 'not', 'or', 'redo', 'rescue', 'retry', 'return',
-                   'self', 'super', 'then', 'true', 'undef', 'unless',
-                   'until', 'when', 'while', 'yield', '', '', '', '', '', '',
-                   '', '');
 
-Begin
-  Assign(FileInfo, 'syntaxes/C.syntax');
-  Rewrite(FileInfo);
-  with SyntaxRecord do
-  begin
-    FileExtension := 'c';
-    ReservedWords := CLangReserved;
-    SingleLineComment := '//';
-    MultiLineComment[1] := '/*';
-    MultiLineComment[2] := '*/';
-  end;
-  Write(FileInfo, SyntaxRecord);
-  Close(FileInfo);
+begin
+  createSyntaxFile('C.syntax', 'c', CLangReserved, '//', '/*', '*/');
+  createSyntaxFile('C++.syntax', 'cpp', CPlusPlusReserved, '//', '/*', '*/');
+  createSyntaxFile('C#.syntax', 'cs', CSharpReserved, '//', '/*', '*/');
+  createSyntaxFile('Go.syntax', 'go', GoLangReserved, '//', '/*', '*/');
+  createSyntaxFile('Java.syntax', 'java', JavaReserved, '//', '/*', '*/');
+  createSyntaxFile('JS.syntax', 'js', JavaScriptReserved, '//', '/*', '*/');
+  createSyntaxFile('Kotlin.syntax', 'kt', KotlinReserved, '//', '/*', '*/');
+  createSyntaxFile('Python.syntax', 'py', PythonReserved, '#', '"""', '"""');
+end;
 
-  Assign(FileInfo, 'syntaxes/C++.syntax');
-  Rewrite(FileInfo);
-  with SyntaxRecord do
-  begin
-    FileExtension := 'cpp';
-    ReservedWords := CPlusPlusReserved;
-    SingleLineComment := '//';
-    MultiLineComment[1] := '/*';
-    MultiLineComment[2] := '*/';
-  end;
-  Write(FileInfo, SyntaxRecord);
-  Close(FileInfo);
 
-  Assign(FileInfo, 'syntaxes/C#.syntax');
-  Rewrite(FileInfo);
-  with SyntaxRecord do
-  begin
-    FileExtension := 'cs';
-    ReservedWords := CSharpReserved;
-    SingleLineComment := '//';
-    MultiLineComment[1] := '/*';
-    MultiLineComment[2] := '*/';
-  end;
-  Write(FileInfo, SyntaxRecord);
-  Close(FileInfo);
+Procedure runSyntaxFilesGenerator;
+begin
+  if not DirectoryExists('syntaxes') then
+    CreateDir('syntaxes');
 
-  Assign(FileInfo, 'syntaxes/Go.syntax');
-  Rewrite(FileInfo);
-  with SyntaxRecord do
-  begin
-    FileExtension := 'go';
-    ReservedWords := GoLangReserved;
-    SingleLineComment := '//';
-    MultiLineComment[1] := '/*';
-    MultiLineComment[2] := '*/';
-  end;
-  Write(FileInfo, SyntaxRecord);
-  Close(FileInfo);
+  if not FileExists('syntaxes/C.syntax') then
+    createFiles;
+end;
 
-  Assign(FileInfo, 'syntaxes/Java.syntax');
-  Rewrite(FileInfo);
-  with SyntaxRecord do
-  begin
-    FileExtension := 'java';
-    ReservedWords := JavaReserved;
-    SingleLineComment := '//';
-    MultiLineComment[1] := '/*';
-    MultiLineComment[2] := '*/';
-  end;
-  Write(FileInfo, SyntaxRecord);
-  Close(FileInfo);
-
-  Assign(FileInfo, 'syntaxes/JS.syntax');
-  Rewrite(FileInfo);
-  with SyntaxRecord do
-  begin
-    FileExtension := 'js';
-    ReservedWords := JavaScriptReserved;
-    SingleLineComment := '//';
-    MultiLineComment[1] := '/*';
-    MultiLineComment[2] := '*/';
-  end;
-  Write(FileInfo, SyntaxRecord);
-  Close(FileInfo);
-
-  Assign(FileInfo, 'syntaxes/Python.syntax');
-  Rewrite(FileInfo);
-  with SyntaxRecord do
-  begin
-    FileExtension := 'py';
-    ReservedWords := PythonReserved;
-    SingleLineComment := '#';
-    MultiLineComment[1] := '"""';
-    MultiLineComment[2] := '"""';
-  end;
-  Write(FileInfo, SyntaxRecord);
-  Close(FileInfo);
-
-  Assign(FileInfo, 'syntaxes/Ruby.syntax');
-  Rewrite(FileInfo);
-  with SyntaxRecord do
-  begin
-    FileExtension := 'rb';
-    ReservedWords := RubyReserved;
-    SingleLineComment := '#';
-    MultiLineComment[1] := '=begin';
-    MultiLineComment[2] := '=end';
-  end;
-  Write(FileInfo, SyntaxRecord);
-  Close(FileInfo);
 End.
+

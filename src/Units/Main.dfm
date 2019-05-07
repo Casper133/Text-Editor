@@ -2135,7 +2135,7 @@ object MainForm: TMainForm
     Width = 800
     Height = 500
     Align = alClient
-    Font.Charset = ANSI_CHARSET
+    Font.Charset = RUSSIAN_CHARSET
     Font.Color = clWindowText
     Font.Height = -15
     Font.Name = 'Courier New'
@@ -2143,16 +2143,15 @@ object MainForm: TMainForm
     ParentFont = False
     TabOrder = 0
     Zoom = 100
-    ExplicitWidth = 793
-    ExplicitHeight = 498
   end
   object aList: TActionList
     Left = 64
-    Top = 440
+    Top = 448
     object aNewFile: TAction
       Category = 'acFile'
       Caption = #1053#1086#1074#1099#1081
       ShortCut = 16462
+      OnExecute = aNewFileExecute
     end
     object aUndo: TAction
       Category = 'acEdit'
@@ -2163,16 +2162,19 @@ object MainForm: TMainForm
       Category = 'acFile'
       Caption = #1054#1090#1082#1088#1099#1090#1100
       ShortCut = 16463
+      OnExecute = aOpenFileExecute
     end
     object aSaveFile: TAction
       Category = 'acFile'
       Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
       ShortCut = 16467
+      OnExecute = aSaveFileExecute
     end
     object aSaveAsFile: TAction
       Category = 'acFile'
       Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1082#1072#1082'...'
       ShortCut = 49235
+      OnExecute = aSaveAsFileExecute
     end
     object aExit: TAction
       Category = 'acFile'
@@ -2254,13 +2256,13 @@ object MainForm: TMainForm
       Category = 'acSyntax'
       Caption = 'JavaScript'
     end
+    object aKotlin: TAction
+      Category = 'acSyntax'
+      Caption = 'Kotlin'
+    end
     object aPython: TAction
       Category = 'acSyntax'
       Caption = 'Python'
-    end
-    object aRuby: TAction
-      Category = 'acSyntax'
-      Caption = 'Ruby'
     end
     object aAboutProgram: TAction
       Category = 'acAbout'
@@ -2353,11 +2355,11 @@ object MainForm: TMainForm
       object mJavaScript: TMenuItem
         Action = aJavaScript
       end
+      object mRuby: TMenuItem
+        Action = aKotlin
+      end
       object mPython: TMenuItem
         Action = aPython
-      end
-      object mRuby: TMenuItem
-        Action = aRuby
       end
     end
     object mAbout: TMenuItem
@@ -2366,5 +2368,30 @@ object MainForm: TMainForm
         Action = aAboutProgram
       end
     end
+  end
+  object fOpenDialog: TOpenTextFileDialog
+    Filter = 
+      'All files (*.*)|*.*|Text file (*.txt)|*.txt|C source file (*.c)|' +
+      '*.c|C++ source file (*.cpp)|*.cpp|C# source file (*.cs)|*.cs|Go ' +
+      'source file (*.go)|*.go|Java source file (*.java)|*.java|JavaScr' +
+      'ipt source file (*.js)|*.js|Kotlin source file (*.kt)|*.kt|Pytho' +
+      'n source file (*.py)|*.py'
+    EncodingIndex = 4
+    Left = 112
+    Top = 448
+  end
+  object fSaveDialog: TSaveTextFileDialog
+    DefaultExt = 'txt'
+    FileName = 'New'
+    Filter = 
+      'All files (*.*)|*.*|Text file (*.txt)|*.txt|C source file (*.c)|' +
+      '*.c|C++ source file (*.cpp)|*.cpp|C# source file (*.cs)|*.cs|Go ' +
+      'source file (*.go)|*.go|Java source file (*.java)|*.java|JavaScr' +
+      'ipt source file (*.js)|*.js|Kotlin source file (*.kt)|*.kt|Pytho' +
+      'n source file (*.py)|*.py'
+    FilterIndex = 2
+    EncodingIndex = 4
+    Left = 168
+    Top = 448
   end
 end
