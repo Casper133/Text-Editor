@@ -6,13 +6,13 @@ Uses
   SysUtils;
 
 Type
-  TReserved = array [1..50] of String[15];
-  TMLineComment = array [1..2] of String[3];
+  TReserved = array [1..50] of string[15];
+  TMLineComment = array [1..2] of string[3];
 
   TSyntaxInfo = record
-    FileExtension: String[5];
+    FileExtension: string[5];
     ReservedWords: TReserved;
-    SingleLineComment: String[2];
+    SingleLineComment: string[2];
     MultiLineComment: TMLineComment;
   end;
 
@@ -21,31 +21,31 @@ Procedure runSyntaxFilesGenerator;
 
 Implementation
 
-Procedure createSyntaxFile(FileName: String; FileExt: ShortString;
-                           rWords: TReserved; sLineComment: ShortString;
-                           mLineCommentBegin, mLineCommentEnd: ShortString);
-Var
-  SyntaxRecord: TSyntaxInfo;
-  FileInfo: File of TSyntaxInfo;
+Procedure createSyntaxFile(fileName: string; fileExt: shortString;
+                           rWords: TReserved; sLineComment: shortString;
+                           mLineCommentBegin, mLineCommentEnd: shortString);
+var
+  syntaxInfo: TSyntaxInfo;
+  syntaxFile: file of TSyntaxInfo;
 
 begin
-  AssignFile(FileInfo, 'syntaxes/' + FileName);
-  Rewrite(FileInfo);
-  with SyntaxRecord do
+  AssignFile(syntaxFile, 'syntaxes/' + fileName);
+  Rewrite(syntaxFile);
+  with syntaxInfo do
   begin
-    FileExtension := FileExt;
+    FileExtension := fileExt;
     ReservedWords := RWords;
     SingleLineComment := sLineComment;
     MultiLineComment[1] := mLineCommentBegin;
     MultiLineComment[2] := mLineCommentEnd;
   end;
-  Write(FileInfo, SyntaxRecord);
-  Close(FileInfo);
+  Write(syntaxFile, syntaxInfo);
+  CloseFile(syntaxFile);
 end;
 
 
 Procedure createFiles;
-Const
+const
   CLangReserved: TReserved =
                   ('auto', 'break', 'case', 'char', 'const', 'continue',
                    'default', 'do', 'double', 'else', 'enum', 'extern',

@@ -5,7 +5,7 @@ Interface
 Uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, System.Actions, Vcl.ActnList, Vcl.Menus,
-  Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtDlgs;
+  Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtDlgs, SyntaxHighlighter, Vcl.ExtCtrls;
 
 Type
   TMainForm = class(TForm)
@@ -64,22 +64,38 @@ Type
     mJava: TMenuItem;
     mJavaScript: TMenuItem;
     mPython: TMenuItem;
-    mRuby: TMenuItem;
+    mKotlin: TMenuItem;
     mAbout: TMenuItem;
     aAboutProgram: TAction;
     mAboutProgram: TMenuItem;
-    RichEdit: TRichEdit;
     fOpenDialog: TOpenTextFileDialog;
     fSaveDialog: TSaveTextFileDialog;
+    RichEdit: TRichEdit;
+    syntaxTimer: TTimer;
     procedure aExitExecute(Sender: TObject);
     procedure aOpenFileExecute(Sender: TObject);
     procedure aSaveAsFileExecute(Sender: TObject);
     procedure aSaveFileExecute(Sender: TObject);
     procedure aNewFileExecute(Sender: TObject);
+    procedure aUndoExecute(Sender: TObject);
+    procedure aCutExecute(Sender: TObject);
+    procedure aCopyExecute(Sender: TObject);
+    procedure aPasteExecute(Sender: TObject);
+    procedure aRedoExecute(Sender: TObject);
+    procedure aSelectAllExecute(Sender: TObject);
+    procedure aPythonExecute(Sender: TObject);
+    procedure aJavaExecute(Sender: TObject);
+    procedure onSyntaxTimer(Sender: TObject);
+    procedure RichEditChange(Sender: TObject);
+    procedure aCLangExecute(Sender: TObject);
+    procedure aCSharpExecute(Sender: TObject);
+    procedure aCPlusPlusExecute(Sender: TObject);
+    procedure aGoLangExecute(Sender: TObject);
+    procedure aJavaScriptExecute(Sender: TObject);
+    procedure aKotlinExecute(Sender: TObject);
   private
-    { Private declarations }
+    syntaxFileName: String;
   public
-    { Public declarations }
   end;
 
 Var
@@ -138,6 +154,134 @@ end;
 Procedure TMainForm.aExitExecute(Sender: TObject);
 begin
   Self.Close;
+end;
+
+
+procedure TMainForm.aUndoExecute(Sender: TObject);
+begin
+  RichEdit.Undo;
+end;
+
+procedure TMainForm.aRedoExecute(Sender: TObject);
+const
+  WM_REDO = WM_USER + 84;
+begin
+  SendMessage(RichEdit.Handle, WM_REDO, 0, 0);
+end;
+
+procedure TMainForm.aCutExecute(Sender: TObject);
+begin
+  RichEdit.CutToClipboard;
+end;
+
+procedure TMainForm.aCopyExecute(Sender: TObject);
+begin
+  RichEdit.CopyToClipboard;
+end;
+
+procedure TMainForm.aPasteExecute(Sender: TObject);
+begin
+  RichEdit.PasteFromClipboard;
+end;
+
+procedure TMainForm.aSelectAllExecute(Sender: TObject);
+begin
+  RichEdit.SelectAll;
+end;
+
+
+procedure TMainForm.RichEditChange(Sender: TObject);
+begin
+  if syntaxFileName <> '' then
+  begin
+    syntaxTimer.Enabled := false;
+    syntaxTimer.Enabled := true;
+  end;
+end;
+
+procedure TMainForm.onSyntaxTimer(Sender: TObject);
+var
+  RECopy: TRichEdit;
+begin
+  if not ((Word(GetAsyncKeyState(VK_SHIFT)) and $8000) <> 0) then
+  begin
+    RECopy := TRichEdit.CreateParented(Self.Handle);
+    syntaxTimer.Enabled := false;
+    Highlight(syntaxFileName, RichEdit, RECopy);
+  end;
+end;
+
+
+procedure TMainForm.aCLangExecute(Sender: TObject);
+var
+  RECopy: TRichEdit;
+begin
+  RECopy := TRichEdit.CreateParented(Self.Handle);
+  syntaxFileName := 'C.syntax';
+  Highlight(syntaxFileName, RichEdit, RECopy);
+end;
+
+procedure TMainForm.aCPlusPlusExecute(Sender: TObject);
+var
+  RECopy: TRichEdit;
+begin
+  RECopy := TRichEdit.CreateParented(Self.Handle);
+  syntaxFileName := 'C++.syntax';
+  Highlight(syntaxFileName, RichEdit, RECopy);
+end;
+
+procedure TMainForm.aCSharpExecute(Sender: TObject);
+var
+  RECopy: TRichEdit;
+begin
+  RECopy := TRichEdit.CreateParented(Self.Handle);
+  syntaxFileName := 'C#.syntax';
+  Highlight(syntaxFileName, RichEdit, RECopy);
+end;
+
+procedure TMainForm.aGoLangExecute(Sender: TObject);
+var
+  RECopy: TRichEdit;
+begin
+  RECopy := TRichEdit.CreateParented(Self.Handle);
+  syntaxFileName := 'Go.syntax';
+  Highlight(syntaxFileName, RichEdit, RECopy);
+end;
+
+procedure TMainForm.aJavaExecute(Sender: TObject);
+var
+  RECopy: TRichEdit;
+begin
+  RECopy := TRichEdit.CreateParented(Self.Handle);
+  syntaxFileName := 'Java.syntax';
+  Highlight(syntaxFileName, RichEdit, RECopy);
+end;
+
+procedure TMainForm.aJavaScriptExecute(Sender: TObject);
+var
+  RECopy: TRichEdit;
+begin
+  RECopy := TRichEdit.CreateParented(Self.Handle);
+  syntaxFileName := 'JS.syntax';
+  Highlight(syntaxFileName, RichEdit, RECopy);
+end;
+
+procedure TMainForm.aKotlinExecute(Sender: TObject);
+var
+  RECopy: TRichEdit;
+begin
+  RECopy := TRichEdit.CreateParented(Self.Handle);
+  syntaxFileName := 'Kotlin.syntax';
+  Highlight(syntaxFileName, RichEdit, RECopy);
+end;
+
+procedure TMainForm.aPythonExecute(Sender: TObject);
+var
+  RECopy: TRichEdit;
+begin
+  RECopy := TRichEdit.CreateParented(Self.Handle);
+  syntaxFileName := 'Python.syntax';
+  Highlight(syntaxFileName, RichEdit, RECopy);
 end;
 
 end.

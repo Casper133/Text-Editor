@@ -2,8 +2,9 @@ Program TextEditor;
 
 uses
   Vcl.Forms,
-  Main in 'Units/Main.pas' {MainForm},
-  SyntaxFilesGenerator in 'Units/SyntaxFilesGenerator.pas';
+  Main in 'Units\Main.pas' {MainForm},
+  SyntaxFilesGenerator in 'Units\SyntaxFilesGenerator.pas',
+  SyntaxHighlighter in 'Units\SyntaxHighlighter.pas';
 
 {$R *.res}
 

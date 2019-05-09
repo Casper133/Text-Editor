@@ -2141,8 +2141,10 @@ object MainForm: TMainForm
     Font.Name = 'Courier New'
     Font.Style = []
     ParentFont = False
+    ScrollBars = ssVertical
     TabOrder = 0
     Zoom = 100
+    OnChange = RichEditChange
   end
   object aList: TActionList
     Left = 64
@@ -2157,6 +2159,7 @@ object MainForm: TMainForm
       Category = 'acEdit'
       Caption = #1054#1090#1084#1077#1085#1072
       ShortCut = 16474
+      OnExecute = aUndoExecute
     end
     object aOpenFile: TAction
       Category = 'acFile'
@@ -2186,21 +2189,25 @@ object MainForm: TMainForm
       Category = 'acEdit'
       Caption = #1055#1086#1074#1090#1086#1088
       ShortCut = 24666
+      OnExecute = aRedoExecute
     end
     object aCut: TAction
       Category = 'acEdit'
       Caption = #1042#1099#1088#1077#1079#1072#1090#1100
       ShortCut = 16472
+      OnExecute = aCutExecute
     end
     object aCopy: TAction
       Category = 'acEdit'
       Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100
       ShortCut = 16451
+      OnExecute = aCopyExecute
     end
     object aPaste: TAction
       Category = 'acEdit'
       Caption = #1042#1089#1090#1072#1074#1080#1090#1100
       ShortCut = 16470
+      OnExecute = aPasteExecute
     end
     object aDelete: TAction
       Category = 'acEdit'
@@ -2211,6 +2218,7 @@ object MainForm: TMainForm
       Category = 'acEdit'
       Caption = #1042#1099#1076#1077#1083#1080#1090#1100' '#1074#1089#1105
       ShortCut = 16449
+      OnExecute = aSelectAllExecute
     end
     object aInsertIndent: TAction
       Category = 'acEdit'
@@ -2235,34 +2243,42 @@ object MainForm: TMainForm
     object aCLang: TAction
       Category = 'acSyntax'
       Caption = 'C'
+      OnExecute = aCLangExecute
     end
     object aCSharp: TAction
       Category = 'acSyntax'
       Caption = 'C#'
+      OnExecute = aCSharpExecute
     end
     object aCPlusPlus: TAction
       Category = 'acSyntax'
       Caption = 'C++'
+      OnExecute = aCPlusPlusExecute
     end
     object aGoLang: TAction
       Category = 'acSyntax'
       Caption = 'Go'
+      OnExecute = aGoLangExecute
     end
     object aJava: TAction
       Category = 'acSyntax'
       Caption = 'Java'
+      OnExecute = aJavaExecute
     end
     object aJavaScript: TAction
       Category = 'acSyntax'
       Caption = 'JavaScript'
+      OnExecute = aJavaScriptExecute
     end
     object aKotlin: TAction
       Category = 'acSyntax'
       Caption = 'Kotlin'
+      OnExecute = aKotlinExecute
     end
     object aPython: TAction
       Category = 'acSyntax'
       Caption = 'Python'
+      OnExecute = aPythonExecute
     end
     object aAboutProgram: TAction
       Category = 'acAbout'
@@ -2355,7 +2371,7 @@ object MainForm: TMainForm
       object mJavaScript: TMenuItem
         Action = aJavaScript
       end
-      object mRuby: TMenuItem
+      object mKotlin: TMenuItem
         Action = aKotlin
       end
       object mPython: TMenuItem
@@ -2376,6 +2392,14 @@ object MainForm: TMainForm
       'source file (*.go)|*.go|Java source file (*.java)|*.java|JavaScr' +
       'ipt source file (*.js)|*.js|Kotlin source file (*.kt)|*.kt|Pytho' +
       'n source file (*.py)|*.py'
+    Encodings.Strings = (
+      'ANSI'
+      'ASCII'
+      'Unicode'
+      'Big Endian Unicode'
+      'UTF-8'
+      'UTF-7'
+      'Windows-1251')
     EncodingIndex = 4
     Left = 112
     Top = 448
@@ -2392,6 +2416,13 @@ object MainForm: TMainForm
     FilterIndex = 2
     EncodingIndex = 4
     Left = 168
+    Top = 448
+  end
+  object syntaxTimer: TTimer
+    Enabled = False
+    Interval = 2000
+    OnTimer = onSyntaxTimer
+    Left = 736
     Top = 448
   end
 end
