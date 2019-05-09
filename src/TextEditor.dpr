@@ -1,4 +1,4 @@
-Program TextEditor;
+﻿Program TextEditor;
 
 uses
   Vcl.Forms,

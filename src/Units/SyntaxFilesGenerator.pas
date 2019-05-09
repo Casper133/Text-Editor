@@ -1,4 +1,4 @@
-Unit SyntaxFilesGenerator;
+﻿Unit SyntaxFilesGenerator;
 
 Interface
 

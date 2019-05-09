@@ -1,4 +1,4 @@
-Unit SyntaxHighlighter;
+п»їUnit SyntaxHighlighter;
 
 Interface
 
@@ -24,7 +24,7 @@ end;
 
 
 Procedure Highlight(fileName: string; var RichEdit, RECopy: TRichEdit);
-// Разделители - символы, около которых могут быть зарезервированные слова
+// Р Р°Р·РґРµР»РёС‚РµР»Рё - СЃРёРјРІРѕР»С‹, РѕРєРѕР»Рѕ РєРѕС‚РѕСЂС‹С… РјРѕРіСѓС‚ Р±С‹С‚СЊ Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹Рµ СЃР»РѕРІР°
 const
   Delimiters: string = ' ,(){}[]-+*%/=~!&|<>?:;.' + #$D#$A;
 
@@ -55,12 +55,12 @@ begin
   sLineComment := syntaxInfo.SingleLineComment;
   mLineComment := syntaxInfo.MultiLineComment;
 
-  // Запоминаем что было выделено до этого
+  // Р—Р°РїРѕРјРёРЅР°РµРј С‡С‚Рѕ Р±С‹Р»Рѕ РІС‹РґРµР»РµРЅРѕ РґРѕ СЌС‚РѕРіРѕ
   sStart := RichEdit.SelStart;
   sLen := RichEdit.SelLength;
 
-  // Флажки: когда один включается, то остальные не включатся,
-  // чтобы не находить в комментариях зарезервированные слова и т.д.
+  // Р¤Р»Р°Р¶РєРё: РєРѕРіРґР° РѕРґРёРЅ РІРєР»СЋС‡Р°РµС‚СЃСЏ, С‚Рѕ РѕСЃС‚Р°Р»СЊРЅС‹Рµ РЅРµ РІРєР»СЋС‡Р°С‚СЃСЏ,
+  // С‡С‚РѕР±С‹ РЅРµ РЅР°С…РѕРґРёС‚СЊ РІ РєРѕРјРјРµРЅС‚Р°СЂРёСЏС… Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹Рµ СЃР»РѕРІР° Рё С‚.Рґ.
   isMultComment := false;
   isInsideStr1 := false;
   isInsideStr2 := false;
@@ -71,12 +71,12 @@ begin
   insideStr1 := -1;
   insideStr2 := -1;
 
-  // Блокировка перерисовки
+  // Р‘Р»РѕРєРёСЂРѕРІРєР° РїРµСЂРµСЂРёСЃРѕРІРєРё
   RichEdit.DoubleBuffered := true;
   SendMessage(RichEdit.Handle, WM_SETREDRAW, 0, 0);
   eventMask := SendMessage(RichEdit.Handle, WM_USER + 69, 0, 0);
 
-  // Копируем в память RichEdit
+  // РљРѕРїРёСЂСѓРµРј РІ РїР°РјСЏС‚СЊ RichEdit
   mStream := TMemoryStream.Create;
   RichEdit.PlainText := true;
   RECopy.PlainText := true;
@@ -88,7 +88,7 @@ begin
     mStream.Free;
   end;
 
-  // Сохранение полос прокрутки RichEdit
+  // РЎРѕС…СЂР°РЅРµРЅРёРµ РїРѕР»РѕСЃ РїСЂРѕРєСЂСѓС‚РєРё RichEdit
   FillChar(scInfoV, sizeof(scInfoV), 0);
   scInfoV.cbSize := sizeof(scInfoV);
   scInfoV.fMask := SIF_POS;
@@ -100,9 +100,9 @@ begin
   GetScrollInfo(RichEdit.Handle, SB_VERT, scInfoV);
   GetScrollInfo(RichEdit.Handle, SB_HORZ, scInfoH);
 
-  // Непосредственно подсветка синтаксиса
+  // РќРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ РїРѕРґСЃРІРµС‚РєР° СЃРёРЅС‚Р°РєСЃРёСЃР°
   try
-    // Чистка предыдущей подсветки
+    // Р§РёСЃС‚РєР° РїСЂРµРґС‹РґСѓС‰РµР№ РїРѕРґСЃРІРµС‚РєРё
     RECopy.SelStart := 0;
     RECopy.SelLength := length(RECopy.Text);
     RECopy.SelAttributes := RichEdit.DefAttributes;
@@ -110,11 +110,11 @@ begin
     RECopy.SelAttributes.Style := [];
 
     i := 0;
-    // Копирование текста в textCopy
+    // РљРѕРїРёСЂРѕРІР°РЅРёРµ С‚РµРєСЃС‚Р° РІ textCopy
     textCopy := RECopy.Text + #$A;
     textLen := length(textCopy);
 
-    // Перебор текста
+    // РџРµСЂРµР±РѕСЂ С‚РµРєСЃС‚Р°
     while (i <= textLen) do
     begin
       i := i + 1;
@@ -122,8 +122,8 @@ begin
       if textCopy[i] = #$D then
         inc(linesCount);
 
-      // Нашли одиночную кавычку и до этого нашли еще одну
-      // красим от первой кавычки до найденной в зелёный
+      // РќР°С€Р»Рё РѕРґРёРЅРѕС‡РЅСѓСЋ РєР°РІС‹С‡РєСѓ Рё РґРѕ СЌС‚РѕРіРѕ РЅР°С€Р»Рё РµС‰Рµ РѕРґРЅСѓ
+      // РєСЂР°СЃРёРј РѕС‚ РїРµСЂРІРѕР№ РєР°РІС‹С‡РєРё РґРѕ РЅР°Р№РґРµРЅРЅРѕР№ РІ Р·РµР»С‘РЅС‹Р№
       if isInsideStr1 and (textCopy[i] = '''') then
       begin
         RECopy.SelStart := insideStr1 - linesCount;
@@ -133,8 +133,8 @@ begin
         continue;
       end;
 
-      // Нашли двойную кавычку и до этого нашли еще одну
-      // красим от первой кавычки до найденной в зелёный
+      // РќР°С€Р»Рё РґРІРѕР№РЅСѓСЋ РєР°РІС‹С‡РєСѓ Рё РґРѕ СЌС‚РѕРіРѕ РЅР°С€Р»Рё РµС‰Рµ РѕРґРЅСѓ
+      // РєСЂР°СЃРёРј РѕС‚ РїРµСЂРІРѕР№ РєР°РІС‹С‡РєРё РґРѕ РЅР°Р№РґРµРЅРЅРѕР№ РІ Р·РµР»С‘РЅС‹Р№
       if isInsideStr2 and (textCopy[i] = '"') then
       begin
         RECopy.SelStart := insideStr2 - linesCount;
@@ -144,7 +144,7 @@ begin
         continue;
       end;
 
-      // Закрашиваем многострочный комментарий
+      // Р—Р°РєСЂР°С€РёРІР°РµРј РјРЅРѕРіРѕСЃС‚СЂРѕС‡РЅС‹Р№ РєРѕРјРјРµРЅС‚Р°СЂРёР№
       if i < textLen then
         if isMultComment and
           (Copy(textCopy, i, Length(mLineComment[2])) = mLineComment[2]) then
@@ -158,10 +158,10 @@ begin
           continue;
         end;
 
-      // Поиск зарезервированных слов вне комментариев и строк
+      // РџРѕРёСЃРє Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹С… СЃР»РѕРІ РІРЅРµ РєРѕРјРјРµРЅС‚Р°СЂРёРµРІ Рё СЃС‚СЂРѕРє
       if (not isMultComment) and (not isInsideStr1) and (not isInsideStr2) then
       begin
-        // одиночная кавычка
+        // РѕРґРёРЅРѕС‡РЅР°СЏ РєР°РІС‹С‡РєР°
         if textCopy[i] = '''' then
         begin
           isInsideStr1 := true;
@@ -169,7 +169,7 @@ begin
           continue;
         end;
 
-        // двойная кавычка
+        // РґРІРѕР№РЅР°СЏ РєР°РІС‹С‡РєР°
         if textCopy[i] = '"' then
         begin
           isInsideStr2 := true;
@@ -177,7 +177,7 @@ begin
           continue;
         end;
 
-        // Закрашиваем однострочный комментарий
+        // Р—Р°РєСЂР°С€РёРІР°РµРј РѕРґРЅРѕСЃС‚СЂРѕС‡РЅС‹Р№ РєРѕРјРјРµРЅС‚Р°СЂРёР№
         if i < textLen then
         begin
           if (Copy(textCopy, i, Length(sLineComment)) = sLineComment) then
@@ -191,7 +191,7 @@ begin
           end;
         end;
 
-        // Если символ начала многострочного комментария
+        // Р•СЃР»Рё СЃРёРјРІРѕР» РЅР°С‡Р°Р»Р° РјРЅРѕРіРѕСЃС‚СЂРѕС‡РЅРѕРіРѕ РєРѕРјРјРµРЅС‚Р°СЂРёСЏ
         if i < textLen then
           if Copy(textCopy, i, Length(mLineComment[1])) = mLineComment[1] then
           begin
@@ -201,21 +201,21 @@ begin
             continue;
           end;
 
-        // Поиск зарезервированного слова
-        // (13 = самое длинное зар. слово + 1 для символа из Delimiters)
+        // РџРѕРёСЃРє Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅРѕРіРѕ СЃР»РѕРІР°
+        // (13 = СЃР°РјРѕРµ РґР»РёРЅРЅРѕРµ Р·Р°СЂ. СЃР»РѕРІРѕ + 1 РґР»СЏ СЃРёРјРІРѕР»Р° РёР· Delimiters)
         possibleRWord := copy(textCopy, i, 13);
 
-        // Если это конец текста - то добавим в конец пробел
+        // Р•СЃР»Рё СЌС‚Рѕ РєРѕРЅРµС† С‚РµРєСЃС‚Р° - С‚Рѕ РґРѕР±Р°РІРёРј РІ РєРѕРЅРµС† РїСЂРѕР±РµР»
         if length(possibleRWord) < 13 then
           possibleRWord := possibleRWord + ' ';
 
         isHightlightPossible := false;
 
-        // Если начало текста - ищем зарезервированное слово
+        // Р•СЃР»Рё РЅР°С‡Р°Р»Рѕ С‚РµРєСЃС‚Р° - РёС‰РµРј Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅРѕРµ СЃР»РѕРІРѕ
         if i = 1 then
           isHightlightPossible := true;
 
-        // Если не начало, но перед символом есть разделитель - также ищем
+        // Р•СЃР»Рё РЅРµ РЅР°С‡Р°Р»Рѕ, РЅРѕ РїРµСЂРµРґ СЃРёРјРІРѕР»РѕРј РµСЃС‚СЊ СЂР°Р·РґРµР»РёС‚РµР»СЊ - С‚Р°РєР¶Рµ РёС‰РµРј
         if (i > 1) then
           if Pos(textCopy[i - 1], Delimiters) > 0 then
             isHightlightPossible := true;
@@ -223,13 +223,13 @@ begin
         if isHightlightPossible then
           for n := 1 to length(rWords) do
             if Length(rWords[n]) <> 0 then
-              // Если слово найдено
+              // Р•СЃР»Рё СЃР»РѕРІРѕ РЅР°Р№РґРµРЅРѕ
               if (Pos(rWords[n], possibleRWord) = 1) and
                 (length(possibleRWord) > length(rWords[n])) then
-                // и если за ним идет разделитель
+                // Рё РµСЃР»Рё Р·Р° РЅРёРј РёРґРµС‚ СЂР°Р·РґРµР»РёС‚РµР»СЊ
                 if Pos(possibleRWord[length(rWords[n]) + 1], Delimiters) > 0 then
                 begin
-                  // то красим его в синий и делаем жирным
+                  // С‚Рѕ РєСЂР°СЃРёРј РµРіРѕ РІ СЃРёРЅРёР№ Рё РґРµР»Р°РµРј Р¶РёСЂРЅС‹Рј
                   RECopy.SelStart := i - 1 - linesCount;
                   RECopy.SelLength := length(rWords[n]);
                   RECopy.SelAttributes.Color := clBlue;
@@ -240,8 +240,8 @@ begin
       end;
     end;
 
-    // Проверяем, есть ли рваные выделения
-    // Тогда просто красим текст до самого конца
+    // РџСЂРѕРІРµСЂСЏРµРј, РµСЃС‚СЊ Р»Рё СЂРІР°РЅС‹Рµ РІС‹РґРµР»РµРЅРёСЏ
+    // РўРѕРіРґР° РїСЂРѕСЃС‚Рѕ РєСЂР°СЃРёРј С‚РµРєСЃС‚ РґРѕ СЃР°РјРѕРіРѕ РєРѕРЅС†Р°
     i := textLen - 1;
     if isInsideStr1 then
     begin
@@ -266,7 +266,7 @@ begin
   except
   end;
 
-  // Копируем из памяти на RichEdit формы
+  // РљРѕРїРёСЂСѓРµРј РёР· РїР°РјСЏС‚Рё РЅР° RichEdit С„РѕСЂРјС‹
   mStream := TMemoryStream.Create;
   RECopy.PlainText := false;
   RichEdit.PlainText := false;
@@ -278,18 +278,18 @@ begin
     mStream.Free;
   end;
 
-  // Восстанавливаем позиции скроллов
+  // Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРѕР·РёС†РёРё СЃРєСЂРѕР»Р»РѕРІ
   RichEdit.Perform(WM_VSCROLL, SB_THUMBPOSITION + scInfoV.nPos * 65536, 0);
   RichEdit.Perform(WM_HSCROLL, SB_THUMBPOSITION + scInfoH.nPos * 65536, 0);
 
-  // Освобождаем память скопированного RichEdit
+  // РћСЃРІРѕР±РѕР¶РґР°РµРј РїР°РјСЏС‚СЊ СЃРєРѕРїРёСЂРѕРІР°РЅРЅРѕРіРѕ RichEdit
   RECopy.Free;
 
-  // Cтавим курсор и выделение в начальное место
+  // CС‚Р°РІРёРј РєСѓСЂСЃРѕСЂ Рё РІС‹РґРµР»РµРЅРёРµ РІ РЅР°С‡Р°Р»СЊРЅРѕРµ РјРµСЃС‚Рѕ
   RichEdit.SelStart := sStart;
   RichEdit.SelLength := sLen;
 
-  // Включаем перерисовку обратно и перерисовываем RichEdit
+  // Р’РєР»СЋС‡Р°РµРј РїРµСЂРµСЂРёСЃРѕРІРєСѓ РѕР±СЂР°С‚РЅРѕ Рё РїРµСЂРµСЂРёСЃРѕРІС‹РІР°РµРј RichEdit
   SendMessage(RichEdit.Handle, WM_SETREDRAW, 1, 0);
   InvalidateRect(RichEdit.Handle, nil, true);
   SendMessage(RichEdit.Handle, WM_USER + 69, 0, eventMask);
