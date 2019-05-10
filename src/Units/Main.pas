@@ -93,8 +93,10 @@ Type
     procedure aGoLangExecute(Sender: TObject);
     procedure aJavaScriptExecute(Sender: TObject);
     procedure aKotlinExecute(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
-    syntaxFileName: String;
+    syntaxFileName: string;
+    projectDir: string;
   public
   end;
 
@@ -104,6 +106,12 @@ Var
 Implementation
 
 {$R *.dfm}
+
+procedure TMainForm.FormCreate(Sender: TObject);
+begin
+  projectDir := GetCurrentDir;
+end;
+
 
 Procedure TMainForm.aNewFileExecute(Sender: TObject);
 begin
@@ -207,7 +215,7 @@ begin
   begin
     RECopy := TRichEdit.CreateParented(Self.Handle);
     syntaxTimer.Enabled := false;
-    Highlight(syntaxFileName, RichEdit, RECopy);
+    Highlight(projectDir, syntaxFileName, RichEdit, RECopy);
   end;
 end;
 
@@ -218,7 +226,7 @@ var
 begin
   RECopy := TRichEdit.CreateParented(Self.Handle);
   syntaxFileName := 'C.syntax';
-  Highlight(syntaxFileName, RichEdit, RECopy);
+  Highlight(projectDir, syntaxFileName, RichEdit, RECopy);
 end;
 
 procedure TMainForm.aCPlusPlusExecute(Sender: TObject);
@@ -227,7 +235,7 @@ var
 begin
   RECopy := TRichEdit.CreateParented(Self.Handle);
   syntaxFileName := 'C++.syntax';
-  Highlight(syntaxFileName, RichEdit, RECopy);
+  Highlight(projectDir, syntaxFileName, RichEdit, RECopy);
 end;
 
 procedure TMainForm.aCSharpExecute(Sender: TObject);
@@ -236,7 +244,7 @@ var
 begin
   RECopy := TRichEdit.CreateParented(Self.Handle);
   syntaxFileName := 'C#.syntax';
-  Highlight(syntaxFileName, RichEdit, RECopy);
+  Highlight(projectDir, syntaxFileName, RichEdit, RECopy);
 end;
 
 procedure TMainForm.aGoLangExecute(Sender: TObject);
@@ -245,7 +253,7 @@ var
 begin
   RECopy := TRichEdit.CreateParented(Self.Handle);
   syntaxFileName := 'Go.syntax';
-  Highlight(syntaxFileName, RichEdit, RECopy);
+  Highlight(projectDir, syntaxFileName, RichEdit, RECopy);
 end;
 
 procedure TMainForm.aJavaExecute(Sender: TObject);
@@ -254,7 +262,7 @@ var
 begin
   RECopy := TRichEdit.CreateParented(Self.Handle);
   syntaxFileName := 'Java.syntax';
-  Highlight(syntaxFileName, RichEdit, RECopy);
+  Highlight(projectDir, syntaxFileName, RichEdit, RECopy);
 end;
 
 procedure TMainForm.aJavaScriptExecute(Sender: TObject);
@@ -263,7 +271,7 @@ var
 begin
   RECopy := TRichEdit.CreateParented(Self.Handle);
   syntaxFileName := 'JS.syntax';
-  Highlight(syntaxFileName, RichEdit, RECopy);
+  Highlight(projectDir, syntaxFileName, RichEdit, RECopy);
 end;
 
 procedure TMainForm.aKotlinExecute(Sender: TObject);
@@ -272,7 +280,7 @@ var
 begin
   RECopy := TRichEdit.CreateParented(Self.Handle);
   syntaxFileName := 'Kotlin.syntax';
-  Highlight(syntaxFileName, RichEdit, RECopy);
+  Highlight(projectDir, syntaxFileName, RichEdit, RECopy);
 end;
 
 procedure TMainForm.aPythonExecute(Sender: TObject);
@@ -281,7 +289,7 @@ var
 begin
   RECopy := TRichEdit.CreateParented(Self.Handle);
   syntaxFileName := 'Python.syntax';
-  Highlight(syntaxFileName, RichEdit, RECopy);
+  Highlight(projectDir, syntaxFileName, RichEdit, RECopy);
 end;
 
 end.

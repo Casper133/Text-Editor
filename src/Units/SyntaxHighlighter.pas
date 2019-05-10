@@ -4,10 +4,10 @@ Interface
 
 Uses
   SyntaxFilesGenerator, Winapi.Windows, Winapi.Messages, System.Classes,
-  Vcl.Graphics, Vcl.ComCtrls, StrUtils;
+  Vcl.Graphics, Vcl.ComCtrls, StrUtils, SysUtils;
 
 Function LoadSyntaxFile(fileName: string): TSyntaxInfo;
-Procedure Highlight(fileName: string; var RichEdit, RECopy: TRichEdit);
+Procedure Highlight(projectDir, fileName: string; var RichEdit, RECopy: TRichEdit);
 
 Implementation
 
@@ -16,14 +16,14 @@ var
   syntaxFile: file of TSyntaxInfo;
 
 begin
-  AssignFile(syntaxFile, 'syntaxes/' + fileName);
+  AssignFile(syntaxFile, fileName);
   Reset(syntaxFile);
   Read(syntaxFile, Result);
   CloseFile(syntaxFile);
 end;
 
 
-Procedure Highlight(fileName: string; var RichEdit, RECopy: TRichEdit);
+Procedure Highlight(projectDir, fileName: string; var RichEdit, RECopy: TRichEdit);
 // Разделители - символы, около которых могут быть зарезервированные слова
 const
   Delimiters: string = ' ,(){}[]-+*%/=~!&|<>?:;.' + #$D#$A;
@@ -44,12 +44,10 @@ var
   sLineComment: string[2];
   mLineComment: TMLineComment;
   testStr: string;
+  dir: String;
 
 begin
-  AssignFile(syntaxFile, 'syntaxes/' + fileName);
-  Reset(syntaxFile);
-  Read(syntaxFile, syntaxInfo);
-  CloseFile(syntaxFile);
+  syntaxInfo := LoadSyntaxFile(projectDir + '\syntaxes\' + fileName);
 
   rWords := syntaxInfo.ReservedWords;
   sLineComment := syntaxInfo.SingleLineComment;

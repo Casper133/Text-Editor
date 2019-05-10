@@ -2127,6 +2127,7 @@ object MainForm: TMainForm
     FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
   Menu = mMenu
   OldCreateOrder = False
+  OnCreate = FormCreate
   PixelsPerInch = 120
   TextHeight = 16
   object RichEdit: TRichEdit

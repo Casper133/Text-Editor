@@ -3,7 +3,7 @@
 Interface
 
 Uses
-  SysUtils;
+  SysUtils, Winapi.Windows;
 
 Type
   TReserved = array [1..50] of string[15];
@@ -131,7 +131,7 @@ begin
     CreateDir('syntaxes');
 
   if not FileExists('syntaxes/C.syntax') then
-    createFiles;
+    createFiles
 end;
 
 End.
