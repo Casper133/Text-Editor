@@ -3,7 +3,7 @@
 Interface
 
 Uses
-  SysUtils, Winapi.Windows;
+  SysUtils;
 
 Type
   TReserved = array [1..50] of string[15];
@@ -16,6 +16,9 @@ Type
     MultiLineComment: TMLineComment;
   end;
 
+Procedure createSyntaxFile(fileName: string; fileExt: shortString;
+                           rWords: TReserved; sLineComment: shortString;
+                           mLineCommentBegin, mLineCommentEnd: shortString);
 Procedure createFiles;
 Procedure runSyntaxFilesGenerator;
 
@@ -131,7 +134,7 @@ begin
     CreateDir('syntaxes');
 
   if not FileExists('syntaxes/C.syntax') then
-    createFiles
+    createFiles;
 end;
 
 End.

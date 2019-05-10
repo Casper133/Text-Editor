@@ -2142,149 +2142,11 @@ object MainForm: TMainForm
     Font.Name = 'Courier New'
     Font.Style = []
     ParentFont = False
+    PlainText = True
     ScrollBars = ssVertical
     TabOrder = 0
     Zoom = 100
     OnChange = RichEditChange
-  end
-  object aList: TActionList
-    Left = 64
-    Top = 448
-    object aNewFile: TAction
-      Category = 'acFile'
-      Caption = #1053#1086#1074#1099#1081
-      ShortCut = 16462
-      OnExecute = aNewFileExecute
-    end
-    object aUndo: TAction
-      Category = 'acEdit'
-      Caption = #1054#1090#1084#1077#1085#1072
-      ShortCut = 16474
-      OnExecute = aUndoExecute
-    end
-    object aOpenFile: TAction
-      Category = 'acFile'
-      Caption = #1054#1090#1082#1088#1099#1090#1100
-      ShortCut = 16463
-      OnExecute = aOpenFileExecute
-    end
-    object aSaveFile: TAction
-      Category = 'acFile'
-      Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
-      ShortCut = 16467
-      OnExecute = aSaveFileExecute
-    end
-    object aSaveAsFile: TAction
-      Category = 'acFile'
-      Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1082#1072#1082'...'
-      ShortCut = 49235
-      OnExecute = aSaveAsFileExecute
-    end
-    object aExit: TAction
-      Category = 'acFile'
-      Caption = #1042#1099#1093#1086#1076
-      ShortCut = 32856
-      OnExecute = aExitExecute
-    end
-    object aRedo: TAction
-      Category = 'acEdit'
-      Caption = #1055#1086#1074#1090#1086#1088
-      ShortCut = 24666
-      OnExecute = aRedoExecute
-    end
-    object aCut: TAction
-      Category = 'acEdit'
-      Caption = #1042#1099#1088#1077#1079#1072#1090#1100
-      ShortCut = 16472
-      OnExecute = aCutExecute
-    end
-    object aCopy: TAction
-      Category = 'acEdit'
-      Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100
-      ShortCut = 16451
-      OnExecute = aCopyExecute
-    end
-    object aPaste: TAction
-      Category = 'acEdit'
-      Caption = #1042#1089#1090#1072#1074#1080#1090#1100
-      ShortCut = 16470
-      OnExecute = aPasteExecute
-    end
-    object aDelete: TAction
-      Category = 'acEdit'
-      Caption = #1059#1076#1072#1083#1080#1090#1100
-      ShortCut = 46
-    end
-    object aSelectAll: TAction
-      Category = 'acEdit'
-      Caption = #1042#1099#1076#1077#1083#1080#1090#1100' '#1074#1089#1105
-      ShortCut = 16449
-      OnExecute = aSelectAllExecute
-    end
-    object aInsertIndent: TAction
-      Category = 'acEdit'
-      Caption = #1042#1089#1090#1072#1074#1080#1090#1100' '#1086#1090#1089#1090#1091#1087
-      ShortCut = 9
-    end
-    object aDeleteIndent: TAction
-      Category = 'acEdit'
-      Caption = #1059#1076#1072#1083#1080#1090#1100' '#1086#1090#1089#1090#1091#1087
-      ShortCut = 8201
-    end
-    object aFind: TAction
-      Category = 'acSearch'
-      Caption = #1053#1072#1081#1090#1080'...'
-      ShortCut = 16454
-    end
-    object aReplace: TAction
-      Category = 'acSearch'
-      Caption = #1047#1072#1084#1077#1085#1072'...'
-      ShortCut = 16456
-    end
-    object aCLang: TAction
-      Category = 'acSyntax'
-      Caption = 'C'
-      OnExecute = aCLangExecute
-    end
-    object aCSharp: TAction
-      Category = 'acSyntax'
-      Caption = 'C#'
-      OnExecute = aCSharpExecute
-    end
-    object aCPlusPlus: TAction
-      Category = 'acSyntax'
-      Caption = 'C++'
-      OnExecute = aCPlusPlusExecute
-    end
-    object aGoLang: TAction
-      Category = 'acSyntax'
-      Caption = 'Go'
-      OnExecute = aGoLangExecute
-    end
-    object aJava: TAction
-      Category = 'acSyntax'
-      Caption = 'Java'
-      OnExecute = aJavaExecute
-    end
-    object aJavaScript: TAction
-      Category = 'acSyntax'
-      Caption = 'JavaScript'
-      OnExecute = aJavaScriptExecute
-    end
-    object aKotlin: TAction
-      Category = 'acSyntax'
-      Caption = 'Kotlin'
-      OnExecute = aKotlinExecute
-    end
-    object aPython: TAction
-      Category = 'acSyntax'
-      Caption = 'Python'
-      OnExecute = aPythonExecute
-    end
-    object aAboutProgram: TAction
-      Category = 'acAbout'
-      Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077'...'
-    end
   end
   object mMenu: TMainMenu
     Left = 16
@@ -2393,14 +2255,6 @@ object MainForm: TMainForm
       'source file (*.go)|*.go|Java source file (*.java)|*.java|JavaScr' +
       'ipt source file (*.js)|*.js|Kotlin source file (*.kt)|*.kt|Pytho' +
       'n source file (*.py)|*.py'
-    Encodings.Strings = (
-      'ANSI'
-      'ASCII'
-      'Unicode'
-      'Big Endian Unicode'
-      'UTF-8'
-      'UTF-7'
-      'Windows-1251')
     EncodingIndex = 4
     Left = 112
     Top = 448
@@ -2425,5 +2279,147 @@ object MainForm: TMainForm
     OnTimer = onSyntaxTimer
     Left = 736
     Top = 448
+  end
+  object aList: TActionList
+    Left = 64
+    Top = 448
+    object aNewFile: TAction
+      Category = 'acFile'
+      Caption = #1053#1086#1074#1099#1081
+      ShortCut = 16462
+      OnExecute = aNewFileExecute
+    end
+    object aUndo: TAction
+      Category = 'acEdit'
+      Caption = #1054#1090#1084#1077#1085#1072
+      ShortCut = 16474
+      OnExecute = aUndoExecute
+    end
+    object aOpenFile: TAction
+      Category = 'acFile'
+      Caption = #1054#1090#1082#1088#1099#1090#1100
+      ShortCut = 16463
+      OnExecute = aOpenFileExecute
+    end
+    object aSaveFile: TAction
+      Category = 'acFile'
+      Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
+      ShortCut = 16467
+      OnExecute = aSaveFileExecute
+    end
+    object aSaveAsFile: TAction
+      Category = 'acFile'
+      Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1082#1072#1082'...'
+      ShortCut = 49235
+      OnExecute = aSaveAsFileExecute
+    end
+    object aExit: TAction
+      Category = 'acFile'
+      Caption = #1042#1099#1093#1086#1076
+      ShortCut = 32856
+      OnExecute = aExitExecute
+    end
+    object aRedo: TAction
+      Category = 'acEdit'
+      Caption = #1055#1086#1074#1090#1086#1088
+      ShortCut = 24666
+      OnExecute = aRedoExecute
+    end
+    object aCut: TAction
+      Category = 'acEdit'
+      Caption = #1042#1099#1088#1077#1079#1072#1090#1100
+      ShortCut = 16472
+      OnExecute = aCutExecute
+    end
+    object aCopy: TAction
+      Category = 'acEdit'
+      Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100
+      ShortCut = 16451
+      OnExecute = aCopyExecute
+    end
+    object aPaste: TAction
+      Category = 'acEdit'
+      Caption = #1042#1089#1090#1072#1074#1080#1090#1100
+      ShortCut = 16470
+      OnExecute = aPasteExecute
+    end
+    object aDelete: TAction
+      Category = 'acEdit'
+      Caption = #1059#1076#1072#1083#1080#1090#1100
+      ShortCut = 46
+      OnExecute = aDeleteExecute
+    end
+    object aSelectAll: TAction
+      Category = 'acEdit'
+      Caption = #1042#1099#1076#1077#1083#1080#1090#1100' '#1074#1089#1105
+      ShortCut = 16449
+      OnExecute = aSelectAllExecute
+    end
+    object aInsertIndent: TAction
+      Category = 'acEdit'
+      Caption = #1042#1089#1090#1072#1074#1080#1090#1100' '#1086#1090#1089#1090#1091#1087
+      ShortCut = 9
+      OnExecute = aInsertIndentExecute
+    end
+    object aDeleteIndent: TAction
+      Category = 'acEdit'
+      Caption = #1059#1076#1072#1083#1080#1090#1100' '#1086#1090#1089#1090#1091#1087
+      ShortCut = 8201
+      OnExecute = aDeleteIndentExecute
+    end
+    object aFind: TAction
+      Category = 'acSearch'
+      Caption = #1053#1072#1081#1090#1080'...'
+      ShortCut = 16454
+    end
+    object aReplace: TAction
+      Category = 'acSearch'
+      Caption = #1047#1072#1084#1077#1085#1072'...'
+      ShortCut = 16456
+    end
+    object aCLang: TAction
+      Category = 'acSyntax'
+      Caption = 'C'
+      OnExecute = aCLangExecute
+    end
+    object aCSharp: TAction
+      Category = 'acSyntax'
+      Caption = 'C#'
+      OnExecute = aCSharpExecute
+    end
+    object aCPlusPlus: TAction
+      Category = 'acSyntax'
+      Caption = 'C++'
+      OnExecute = aCPlusPlusExecute
+    end
+    object aGoLang: TAction
+      Category = 'acSyntax'
+      Caption = 'Go'
+      OnExecute = aGoLangExecute
+    end
+    object aJava: TAction
+      Category = 'acSyntax'
+      Caption = 'Java'
+      OnExecute = aJavaExecute
+    end
+    object aJavaScript: TAction
+      Category = 'acSyntax'
+      Caption = 'JavaScript'
+      OnExecute = aJavaScriptExecute
+    end
+    object aKotlin: TAction
+      Category = 'acSyntax'
+      Caption = 'Kotlin'
+      OnExecute = aKotlinExecute
+    end
+    object aPython: TAction
+      Category = 'acSyntax'
+      Caption = 'Python'
+      OnExecute = aPythonExecute
+    end
+    object aAboutProgram: TAction
+      Category = 'acAbout'
+      Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077'...'
+    end
   end
 end
