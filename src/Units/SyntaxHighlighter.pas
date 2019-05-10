@@ -300,7 +300,7 @@ const
 var
   fileExtension: string;
 begin
-  fileExtension := AnsiLowerCase(TRegEx.Match(filePath, pattern, [roIgnoreCase]).Value);
+  fileExtension := AnsiLowerCase(TRegEx.Match(filePath, pattern).Value);
 
   if Length(fileExtension) <> 0 then
     if fileExtension = '.c' then

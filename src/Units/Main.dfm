@@ -2142,15 +2142,16 @@ object MainForm: TMainForm
     Font.Name = 'Courier New'
     Font.Style = []
     ParentFont = False
-    PlainText = True
     ScrollBars = ssVertical
     TabOrder = 0
     Zoom = 100
     OnChange = RichEditChange
+    ExplicitLeft = 168
+    ExplicitTop = 16
   end
   object mMenu: TMainMenu
-    Left = 16
-    Top = 448
+    Left = 24
+    Top = 440
     object mFile: TMenuItem
       Caption = #1060#1072#1081#1083
       object mNew: TMenuItem
@@ -2256,8 +2257,8 @@ object MainForm: TMainForm
       'ipt source file (*.js)|*.js|Kotlin source file (*.kt)|*.kt|Pytho' +
       'n source file (*.py)|*.py'
     EncodingIndex = 4
-    Left = 112
-    Top = 448
+    Left = 128
+    Top = 440
   end
   object fSaveDialog: TSaveTextFileDialog
     DefaultExt = 'txt'
@@ -2270,19 +2271,19 @@ object MainForm: TMainForm
       'n source file (*.py)|*.py'
     FilterIndex = 2
     EncodingIndex = 4
-    Left = 168
-    Top = 448
+    Left = 208
+    Top = 440
   end
   object syntaxTimer: TTimer
     Enabled = False
     Interval = 2000
     OnTimer = onSyntaxTimer
-    Left = 736
-    Top = 448
+    Left = 440
+    Top = 440
   end
   object aList: TActionList
-    Left = 64
-    Top = 448
+    Left = 72
+    Top = 440
     object aNewFile: TAction
       Category = 'acFile'
       Caption = #1053#1086#1074#1099#1081
@@ -2371,6 +2372,7 @@ object MainForm: TMainForm
       Category = 'acSearch'
       Caption = #1053#1072#1081#1090#1080'...'
       ShortCut = 16454
+      OnExecute = aFindExecute
     end
     object aReplace: TAction
       Category = 'acSearch'
@@ -2421,5 +2423,14 @@ object MainForm: TMainForm
       Category = 'acAbout'
       Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077'...'
     end
+  end
+  object FindDialog: TFindDialog
+    OnFind = FindDialogFind
+    Left = 280
+    Top = 440
+  end
+  object ReplaceDialog: TReplaceDialog
+    Left = 360
+    Top = 440
   end
 end
