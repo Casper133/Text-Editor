@@ -10,15 +10,16 @@ Uses
 
 Type
   TMainForm = class(TForm)
+    RichEdit: TRichEdit;
     mMenu: TMainMenu;
     mFile: TMenuItem;
-    mEdit: TMenuItem;
     mNew: TMenuItem;
     mOpen: TMenuItem;
     mSave: TMenuItem;
     mSaveAs: TMenuItem;
-    N5: TMenuItem;
+    Separator1: TMenuItem;
     mExit: TMenuItem;
+    mEdit: TMenuItem;
     mUndo: TMenuItem;
     mRedo: TMenuItem;
     mCut: TMenuItem;
@@ -26,34 +27,30 @@ Type
     mPaste: TMenuItem;
     mDelete: TMenuItem;
     mSelectAll: TMenuItem;
+    Separator2: TMenuItem;
     mInsertIndent: TMenuItem;
     mDeleteIndent: TMenuItem;
-    N8: TMenuItem;
     mSearch: TMenuItem;
     mFind: TMenuItem;
     mReplace: TMenuItem;
     mSyntaxes: TMenuItem;
     mCLang: TMenuItem;
-    mCSharp: TMenuItem;
     mCPlusPlus: TMenuItem;
+    mCSharp: TMenuItem;
     mGoLang: TMenuItem;
     mJava: TMenuItem;
     mJavaScript: TMenuItem;
-    mPython: TMenuItem;
     mKotlin: TMenuItem;
+    mPython: TMenuItem;
     mAbout: TMenuItem;
     mAboutProgram: TMenuItem;
-    fOpenDialog: TOpenTextFileDialog;
-    fSaveDialog: TSaveTextFileDialog;
-    RichEdit: TRichEdit;
-    syntaxTimer: TTimer;
     aList: TActionList;
     aNewFile: TAction;
-    aUndo: TAction;
     aOpenFile: TAction;
     aSaveFile: TAction;
     aSaveAsFile: TAction;
     aExit: TAction;
+    aUndo: TAction;
     aRedo: TAction;
     aCut: TAction;
     aCopy: TAction;
@@ -65,16 +62,20 @@ Type
     aFind: TAction;
     aReplace: TAction;
     aCLang: TAction;
-    aCSharp: TAction;
     aCPlusPlus: TAction;
+    aCSharp: TAction;
     aGoLang: TAction;
     aJava: TAction;
     aJavaScript: TAction;
     aKotlin: TAction;
     aPython: TAction;
     aAboutProgram: TAction;
+    fOpenDialog: TOpenTextFileDialog;
+    fSaveDialog: TSaveTextFileDialog;
     FindDialog: TFindDialog;
     ReplaceDialog: TReplaceDialog;
+    syntaxTimer: TTimer;
+
     procedure FormCreate(Sender: TObject);
 
     procedure aNewFileExecute(Sender: TObject);
@@ -95,6 +96,7 @@ Type
 
     procedure aFindExecute(Sender: TObject);
     procedure FindDialogFind(Sender: TObject);
+    procedure aReplaceExecute(Sender: TObject);
 
     procedure RichEditChange(Sender: TObject);
     procedure onSyntaxTimer(Sender: TObject);
@@ -107,6 +109,8 @@ Type
     procedure aJavaScriptExecute(Sender: TObject);
     procedure aKotlinExecute(Sender: TObject);
     procedure aPythonExecute(Sender: TObject);
+    procedure ReplaceDialogFind(Sender: TObject);
+    procedure ReplaceDialogReplace(Sender: TObject);
   private
     syntaxFileName: string;
     projectDir: string;
@@ -276,8 +280,7 @@ procedure TMainForm.FindDialogFind(Sender: TObject);
 var
   FoundAt: LongInt;
   startPos, searchLen: Integer;
-  searchTypes : TSearchTypes;
-  findOptions : TFindOptions;
+  searchTypes: TSearchTypes;
 begin
   searchTypes := [];
   with RichEdit do
@@ -302,8 +305,59 @@ begin
       SelLength := Length(FindDialog.FindText);
     end
     else
+    begin
+      SelLength := 0;
       Beep;
+    end;
   end;
+end;
+
+procedure TMainForm.aReplaceExecute(Sender: TObject);
+begin
+  ReplaceDialog.Execute;
+end;
+
+procedure TMainForm.ReplaceDialogFind(Sender: TObject);
+var
+  FoundAt: LongInt;
+  startPos, searchLen: Integer;
+  searchTypes: TSearchTypes;
+begin
+  searchTypes := [];
+  with RichEdit do
+  begin
+    if frMatchCase in ReplaceDialog.Options then
+       searchTypes := searchTypes + [stMatchCase];
+    if frWholeWord in ReplaceDialog.Options then
+       searchTypes := searchTypes + [stWholeWord];
+
+    if SelLength <> 0 then
+      startPos := SelStart + SelLength
+    else
+      startPos := 0;
+
+    searchLen := Length(Text) - startPos;
+    FoundAt := FindText(ReplaceDialog.FindText, startPos, searchLen, searchTypes);
+
+    if FoundAt <> -1 then
+    begin
+      SetFocus;
+      SelStart := FoundAt;
+      SelLength := Length(ReplaceDialog.FindText);
+    end
+    else
+    begin
+      SelLength := 0;
+      Beep;
+    end;
+  end;
+end;
+
+procedure TMainForm.ReplaceDialogReplace(Sender: TObject);
+begin
+  with RichEdit do
+    if Length(SelText) <> 0 then
+      SelText := ReplaceDialog.ReplaceText;
 end;
 
 

@@ -2146,8 +2146,6 @@ object MainForm: TMainForm
     TabOrder = 0
     Zoom = 100
     OnChange = RichEditChange
-    ExplicitLeft = 168
-    ExplicitTop = 16
   end
   object mMenu: TMainMenu
     Left = 24
@@ -2166,7 +2164,7 @@ object MainForm: TMainForm
       object mSaveAs: TMenuItem
         Action = aSaveAsFile
       end
-      object N5: TMenuItem
+      object Separator1: TMenuItem
         Caption = '-'
       end
       object mExit: TMenuItem
@@ -2196,7 +2194,7 @@ object MainForm: TMainForm
       object mSelectAll: TMenuItem
         Action = aSelectAll
       end
-      object N8: TMenuItem
+      object Separator2: TMenuItem
         Caption = '-'
       end
       object mInsertIndent: TMenuItem
@@ -2220,11 +2218,11 @@ object MainForm: TMainForm
       object mCLang: TMenuItem
         Action = aCLang
       end
-      object mCSharp: TMenuItem
-        Action = aCSharp
-      end
       object mCPlusPlus: TMenuItem
         Action = aCPlusPlus
+      end
+      object mCSharp: TMenuItem
+        Action = aCSharp
       end
       object mGoLang: TMenuItem
         Action = aGoLang
@@ -2378,6 +2376,7 @@ object MainForm: TMainForm
       Category = 'acSearch'
       Caption = #1047#1072#1084#1077#1085#1072'...'
       ShortCut = 16456
+      OnExecute = aReplaceExecute
     end
     object aCLang: TAction
       Category = 'acSyntax'
@@ -2430,6 +2429,8 @@ object MainForm: TMainForm
     Top = 440
   end
   object ReplaceDialog: TReplaceDialog
+    OnFind = ReplaceDialogFind
+    OnReplace = ReplaceDialogReplace
     Left = 360
     Top = 440
   end
