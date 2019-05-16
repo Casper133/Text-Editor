@@ -97,6 +97,8 @@ Type
     procedure aFindExecute(Sender: TObject);
     procedure FindDialogFind(Sender: TObject);
     procedure aReplaceExecute(Sender: TObject);
+    procedure ReplaceDialogFind(Sender: TObject);
+    procedure ReplaceDialogReplace(Sender: TObject);
 
     procedure RichEditChange(Sender: TObject);
     procedure onSyntaxTimer(Sender: TObject);
@@ -109,8 +111,6 @@ Type
     procedure aJavaScriptExecute(Sender: TObject);
     procedure aKotlinExecute(Sender: TObject);
     procedure aPythonExecute(Sender: TObject);
-    procedure ReplaceDialogFind(Sender: TObject);
-    procedure ReplaceDialogReplace(Sender: TObject);
   private
     syntaxFileName: string;
     projectDir: string;

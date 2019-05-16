@@ -1,9 +1,12 @@
-﻿Unit SyntaxFilesGenerator;
+Unit SyntaxFiles;
 
 Interface
 
 Uses
   SysUtils;
+
+Const
+  SCount = 8;
 
 Type
   TReserved = array [1..50] of string[15];
@@ -16,38 +19,115 @@ Type
     MultiLineComment: TMLineComment;
   end;
 
-Procedure createSyntaxFile(fileName: string; fileExt: shortString;
-                           rWords: TReserved; sLineComment: shortString;
-                           mLineCommentBegin, mLineCommentEnd: shortString);
-Procedure createFiles;
-Procedure runSyntaxFilesGenerator;
+  PSyntaxInfo = ^TSyntaxInfo;
+  TDefaultSyntaxes = array [1..SCount] of TSyntaxInfo;
+
+  TSyntaxNode = class
+  private
+    syntax: PSyntaxInfo;
+    fileName: string;
+    fileExtension: string;
+    next: TSyntaxNode;
+    prev: TSyntaxNode;
+    constructor create(const syntax: PSyntaxInfo; const fileName: string);
+    procedure createSyntaxFile(const projectPath: string; fileName: string);
+  end;
+
+  TSyntaxList = class
+  private
+    projectPath: string;
+    head: TSyntaxNode;
+    tail: TSyntaxNode;
+    count: integer;
+    function getNodeByFileName(const name: string): TSyntaxNode;
+    procedure removeNode(const syntax: TSyntaxNode);
+    procedure fillAsDefault();
+  public
+    constructor create(const projectPath: string);
+    procedure createDefaultSyntaxes();
+    procedure appendSyntax(const syntax: PSyntaxInfo; const fileName: string);
+    procedure removeItemByFileName(const name: string);
+    function getSyntaxByFileName(const name: string): PSyntaxInfo;
+    property syntaxes[const fileName: string]: PSyntaxInfo read getSyntaxByFileName;
+  end;
 
 Implementation
 
-Procedure createSyntaxFile(fileName: string; fileExt: shortString;
-                           rWords: TReserved; sLineComment: shortString;
-                           mLineCommentBegin, mLineCommentEnd: shortString);
-var
-  syntaxInfo: TSyntaxInfo;
-  syntaxFile: file of TSyntaxInfo;
+{ TSyntaxNode }
 
+Constructor TSyntaxNode.create(const syntax: PSyntaxInfo; const fileName: string);
+Const
+  SyntaxExtension = '.syntax';
 begin
-  AssignFile(syntaxFile, 'syntaxes/' + fileName);
-  Rewrite(syntaxFile);
-  with syntaxInfo do
+  self.syntax := syntax;
+  self.fileName := fileName;
+  self.fileExtension := SyntaxExtension;
+end;
+
+Procedure TSyntaxNode.createSyntaxFile(const projectPath: string; fileName: string);
+var
+  syntaxFile: file of TSyntaxInfo;
+begin
+  if self.syntax <> nil then
   begin
-    FileExtension := fileExt;
-    ReservedWords := RWords;
-    SingleLineComment := sLineComment;
-    MultiLineComment[1] := mLineCommentBegin;
-    MultiLineComment[2] := mLineCommentEnd;
+    if not DirectoryExists(projectPath + '\syntaxes') then
+      CreateDir(projectPath + 'syntaxes');
+
+    fileName := fileName + self.fileExtension;
+
+    if not FileExists(projectPath + '\syntaxes\' + fileName) then
+    begin
+      AssignFile(syntaxFile, projectPath + '\syntaxes\' + fileName);
+      Rewrite(syntaxFile);
+      Write(syntaxFile, self.syntax^);
+      CloseFile(syntaxFile);
+    end;
   end;
-  Write(syntaxFile, syntaxInfo);
-  CloseFile(syntaxFile);
 end;
 
 
-Procedure createFiles;
+{ TSyntaxList }
+
+{ public }
+
+Constructor TSyntaxList.create(const projectPath: string);
+begin
+  self.projectPath := projectPath;
+end;
+
+Procedure TSyntaxList.createDefaultSyntaxes;
+begin
+  self.fillAsDefault;
+end;
+
+Procedure TSyntaxList.appendSyntax(const syntax: PSyntaxInfo; const fileName: string);
+begin
+
+end;
+
+Procedure TSyntaxList.removeItemByFileName(const name: string);
+begin
+
+end;
+
+Function TSyntaxList.getSyntaxByFileName(const name: string): PSyntaxInfo;
+begin
+
+end;
+
+{ private }
+
+Function TSyntaxList.getNodeByFileName(const name: string): TSyntaxNode;
+begin
+
+end;
+
+Procedure TSyntaxList.removeNode(const syntax: TSyntaxNode);
+begin
+
+end;
+
+Procedure TSyntaxList.fillAsDefault;
 const
   CLangReserved: TReserved =
                   ('auto', 'break', 'case', 'char', 'const', 'continue',
@@ -115,27 +195,8 @@ const
                    'is', 'lambda', 'None', 'nonlocal', 'not', 'or', 'pass',
                    'raise', 'return', 'True', 'try', 'while', 'with', 'yield',
                    '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
-
 begin
-  createSyntaxFile('C.syntax', 'c', CLangReserved, '//', '/*', '*/');
-  createSyntaxFile('C++.syntax', 'cpp', CPlusPlusReserved, '//', '/*', '*/');
-  createSyntaxFile('C#.syntax', 'cs', CSharpReserved, '//', '/*', '*/');
-  createSyntaxFile('Go.syntax', 'go', GoLangReserved, '//', '/*', '*/');
-  createSyntaxFile('Java.syntax', 'java', JavaReserved, '//', '/*', '*/');
-  createSyntaxFile('JS.syntax', 'js', JavaScriptReserved, '//', '/*', '*/');
-  createSyntaxFile('Kotlin.syntax', 'kt', KotlinReserved, '//', '/*', '*/');
-  createSyntaxFile('Python.syntax', 'py', PythonReserved, '#', '"""', '"""');
-end;
 
-
-Procedure runSyntaxFilesGenerator;
-begin
-  if not DirectoryExists('syntaxes') then
-    CreateDir('syntaxes');
-
-  if not FileExists('syntaxes/C.syntax') then
-    createFiles;
 end;
 
 End.
-
