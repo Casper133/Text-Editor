@@ -3,7 +3,7 @@
 interface
 
 uses
-  SysUtils;
+  SysUtils, IOUtils, Types, RegularExpressions;
 
 const
   DefaultCount = 8;
@@ -43,22 +43,26 @@ type
     head: TSyntaxNode;
     tail: TSyntaxNode;
     FCount: integer;
-    function getNodeByFileName(const name: string): TSyntaxNode;
-    procedure removeNode(var Node: TSyntaxNode);
-    procedure fillAsDefault();
-    Function createSyntaxInfo(const fileExt: shortString; const rWords: TReserved;
+    function GetSyntaxInfoFromFile(PathToFile: string): TSyntaxInfo;
+    function GetNodeByFileName(const name: string): TSyntaxNode;
+    function GetNodeByFileExtension(const FileExt: string): TSyntaxNode;
+    procedure RemoveNode(var Node: TSyntaxNode);
+    procedure FillAsDefault();
+    function CreateSyntaxInfo(const fileExt: shortString; const rWords: TReserved;
                             const sLineComment, mLineCommentBegin,
                             mLineCommentEnd: shortString): TSyntaxInfo;
   public
     constructor create(const SyntaxPath: string);
     procedure createDefaultSyntaxes();
-    procedure appendSyntax(const syntax: PSyntaxInfo; const fileName: string);
+    procedure LoadExistingSyntaxFiles();
+    procedure appendSyntax(const Syntax: PSyntaxInfo; const fileName: string);
     procedure removeSyntaxByFileName(const name: string);
     function getSyntaxByFileName(const name: string): PSyntaxInfo;
     function GetCount(): integer;
     procedure SaveSyntaxFiles();
     function GetAllLanguages(): TLangNames;
-    property syntaxes[const fileName: string]: PSyntaxInfo read getSyntaxByFileName; default;
+    function CheckFileForCode(const FilePath: string): string;
+    property Syntaxes[const fileName: string]: PSyntaxInfo read getSyntaxByFileName; default;
     property Count: integer read GetCount;
   end;
 
@@ -102,23 +106,44 @@ constructor TSyntaxList.create(const SyntaxPath: string);
 const
   FileExtension = '.syntax';
 begin
-  self.syntaxPath := SyntaxPath;
-  self.fileExtension := FileExtension;
+  Self.syntaxPath := SyntaxPath;
+  Self.fileExtension := FileExtension;
 end;
 
-procedure TSyntaxList.createDefaultSyntaxes;
+procedure TSyntaxList.createDefaultSyntaxes();
 begin
   if DirectoryExists(Self.syntaxPath) then
       RemoveDir(Self.syntaxPath);
 
-  Self.fillAsDefault;
+  Self.FillAsDefault();
 end;
 
-procedure TSyntaxList.appendSyntax(const syntax: PSyntaxInfo; const fileName: string);
+procedure TSyntaxList.LoadExistingSyntaxFiles();
+const
+  StrFilePattern = 'syntaxes\\(.+)\.syntax$'; // Regular expression
+var
+  SyntaxFiles: TStringDynArray;
+  FilePattern, FilePath, fileName: string;
+  i: integer;
+  Syntax: PSyntaxInfo;
+begin
+  FilePattern := '*' + Self.fileExtension;
+  SyntaxFiles := TDirectory.GetFiles(Self.syntaxPath, FilePattern);
+  for i := 0 to Length(SyntaxFiles) - 1 do
+  begin
+    FilePath := SyntaxFiles[i];
+    New(Syntax);
+    Syntax^ := Self.GetSyntaxInfoFromFile(FilePath);
+    fileName := TRegEx.Match(FilePath, StrFilePattern).Groups[1].Value;
+    Self.appendSyntax(Syntax, fileName);
+  end;
+end;
+
+procedure TSyntaxList.appendSyntax(const Syntax: PSyntaxInfo; const fileName: string);
 var
   syntaxNode: TSyntaxNode;
 begin
-  syntaxNode := TSyntaxNode.create(syntax, self.syntaxPath, fileName, self.fileExtension);
+  syntaxNode := TSyntaxNode.create(Syntax, self.syntaxPath, fileName, self.fileExtension);
 
   if self.head = nil then
   begin
@@ -140,17 +165,17 @@ procedure TSyntaxList.removeSyntaxByFileName(const name: string);
 var
   Node: TSyntaxNode;
 begin
-  Node := Self.getNodeByFileName(name);
+  Node := Self.GetNodeByFileName(name);
 
   if Node <> nil then
-    Self.removeNode(Node);
+    Self.RemoveNode(Node);
 end;
 
 function TSyntaxList.getSyntaxByFileName(const name: string): PSyntaxInfo;
 var
   Node: TSyntaxNode;
 begin
-  Node := Self.getNodeByFileName(name);
+  Node := Self.GetNodeByFileName(name);
   if Node <> nil then
     Result := Node.syntax
   else
@@ -190,9 +215,45 @@ begin
     end;
 end;
 
+function TSyntaxList.CheckFileForCode(const FilePath: string): string;
+const
+  pattern: string = '\.(.+)$'; // Regular expression
+var
+  FileExtension: string;
+  SyntaxNode: TSyntaxNode;
+begin
+  FileExtension := AnsiLowerCase(TRegEx.Match(filePath, pattern).Groups[1].Value);
+
+  if Length(FileExtension) <> 0 then
+  begin
+    SyntaxNode := Self.GetNodeByFileExtension(FileExtension);
+    if SyntaxNode <> nil then
+      Result := SyntaxNode.fileName
+    else
+      Result := '';
+  end
+  else
+    Result := '';
+end;
+
 { private }
 
-function TSyntaxList.getNodeByFileName(const name: string): TSyntaxNode;
+function TSyntaxList.GetSyntaxInfoFromFile(PathToFile: string): TSyntaxInfo;
+var
+  SyntaxFile: file of TSyntaxInfo;
+  SyntaxInfo: TSyntaxInfo;
+
+begin
+  AssignFile(SyntaxFile, PathToFile);
+  Reset(SyntaxFile);
+  Read(SyntaxFile, SyntaxInfo);
+  CloseFile(SyntaxFile);
+
+
+  Result := SyntaxInfo;
+end;
+
+function TSyntaxList.GetNodeByFileName(const name: string): TSyntaxNode;
 var
   CurrNode: TSyntaxNode;
 begin
@@ -211,7 +272,26 @@ begin
   Result := nil;
 end;
 
-procedure TSyntaxList.removeNode(var Node: TSyntaxNode);
+function TSyntaxList.GetNodeByFileExtension(const FileExt: string): TSyntaxNode;
+var
+  CurrNode: TSyntaxNode;
+begin
+  CurrNode := Self.head;
+  while CurrNode <> nil do
+  begin
+    if CurrNode.syntax.FileExtension = FileExt then
+    begin
+      Result := CurrNode;
+      Exit;
+    end;
+
+    CurrNode := CurrNode.next;
+  end;
+
+  Result := nil;
+end;
+
+procedure TSyntaxList.RemoveNode(var Node: TSyntaxNode);
 begin
   if (Node <> Self.head) and (Node <> Self.tail) then
   begin
@@ -223,20 +303,24 @@ begin
   else if Node = Self.tail then
     Self.tail := Node.prev;
 
+  Dispose(Node.syntax);
+  Node.Destroy();
+
   DeleteFile(Self.syntaxPath + '\' + Node.fileName + Node.fileExtension);
   Dec(Self.FCount);
 end;
 
-procedure TSyntaxList.fillAsDefault();
+procedure TSyntaxList.FillAsDefault();
 const
-  CLangReserved: TReserved =
-                  ('auto', 'break', 'case', 'char', 'const', 'continue',
-                   'default', 'do', 'double', 'else', 'enum', 'extern',
-                   'float', 'for', 'goto', 'if', 'int', 'long',
-                   'register', 'return', 'short', 'signed', 'sizeof', 'static',
-                   'struct', 'switch', 'typedef', 'union', 'unsigned', 'void',
-                   'volatile', 'while', '', '', '', '', '', '', '', '', '', '',
-                   '', '', '', '', '', '', '', '');
+  CSharpReserved: TReserved =
+                  ('abstract', 'as', 'base', 'bool', 'break', 'byte', 'case',
+                   'catch', 'char', 'class', 'const', 'continue', 'default',
+                   'delegate', 'do', 'double', 'else', 'enum', 'finally',
+                   'fixed', 'float', 'for', 'foreach', 'goto', 'if', 'in',
+                   'int', 'interface', 'internal', 'is', 'lock', 'long', 'new',
+                   'namespace', 'override', 'private', 'protected', 'public',
+                   'return', 'short', 'static', 'struct', 'switch', 'throw',
+                   'try', 'using', 'virtual', 'void', 'volatile', 'while');
   CPlusPlusReserved: TReserved =
                   ('and', 'and_eq', 'asm', 'bitand', 'bitor', 'bool', 'break',
                    'case', 'catch', 'char', 'class', 'compl', 'const',
@@ -247,15 +331,14 @@ const
                    'signed', 'static', 'struct', 'switch', 'syncronized',
                    'throw', 'try', 'virtual', 'void', 'volatile', 'while',
                    'xor', 'xor_eq');
-  CSharpReserved: TReserved =
-                  ('abstract', 'as', 'base', 'bool', 'break', 'byte', 'case',
-                   'catch', 'char', 'class', 'const', 'continue', 'default',
-                   'delegate', 'do', 'double', 'else', 'enum', 'finally',
-                   'fixed', 'float', 'for', 'foreach', 'goto', 'if', 'in',
-                   'int', 'interface', 'internal', 'is', 'lock', 'long', 'new',
-                   'namespace', 'override', 'private', 'protected', 'public',
-                   'return', 'short', 'static', 'struct', 'switch', 'throw',
-                   'try', 'using', 'virtual', 'void', 'volatile', 'while');
+  CLangReserved: TReserved =
+                  ('auto', 'break', 'case', 'char', 'const', 'continue',
+                   'default', 'do', 'double', 'else', 'enum', 'extern',
+                   'float', 'for', 'goto', 'if', 'int', 'long',
+                   'register', 'return', 'short', 'signed', 'sizeof', 'static',
+                   'struct', 'switch', 'typedef', 'union', 'unsigned', 'void',
+                   'volatile', 'while', '', '', '', '', '', '', '', '', '', '',
+                   '', '', '', '', '', '', '', '');
   GoLangReserved: TReserved =
                   ('break', 'case', 'chan', 'const', 'continue', 'default',
                    'defer', 'else', 'fallthrough', 'for', 'func', 'go', 'goto',
@@ -296,34 +379,42 @@ const
                    'raise', 'return', 'True', 'try', 'while', 'with', 'yield',
                    '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
 var
-  syntaxInfo: TSyntaxInfo;
+  PSyntax: PSyntaxInfo;
 begin
-  SyntaxInfo := createSyntaxInfo('c', CLangReserved, '//', '/*', '*/');
-  self.appendSyntax(@SyntaxInfo, 'C');
+  New(PSyntax);
+  PSyntax^ := CreateSyntaxInfo('cs', CSharpReserved, '//', '/*', '*/');
+  self.appendSyntax(PSyntax, 'C#');
 
-  syntaxInfo := createSyntaxInfo('cpp', CPlusPlusReserved, '//', '/*', '*/');
-  self.appendSyntax(@SyntaxInfo, 'C++');
+  New(PSyntax);
+  PSyntax^ := CreateSyntaxInfo('cpp', CPlusPlusReserved, '//', '/*', '*/');
+  self.appendSyntax(PSyntax, 'C++');
 
-  syntaxInfo := createSyntaxInfo('cs', CSharpReserved, '//', '/*', '*/');
-  self.appendSyntax(@SyntaxInfo, 'C#');
+  New(PSyntax);
+  PSyntax^ := CreateSyntaxInfo('c', CLangReserved, '//', '/*', '*/');
+  self.appendSyntax(PSyntax, 'C');
 
-  syntaxInfo := createSyntaxInfo('go', GoLangReserved, '//', '/*', '*/');
-  self.appendSyntax(@SyntaxInfo, 'Go');
+  New(PSyntax);
+  PSyntax^ := CreateSyntaxInfo('go', GoLangReserved, '//', '/*', '*/');
+  self.appendSyntax(PSyntax, 'Go');
 
-  syntaxInfo := createSyntaxInfo('java', JavaReserved, '//', '/*', '*/');
-  self.appendSyntax(@SyntaxInfo, 'Java');
+  New(PSyntax);
+  PSyntax^ := CreateSyntaxInfo('java', JavaReserved, '//', '/*', '*/');
+  self.appendSyntax(PSyntax, 'Java');
 
-  syntaxInfo := createSyntaxInfo('js', JavaScriptReserved, '//', '/*', '*/');
-  self.appendSyntax(@SyntaxInfo, 'JavaScript');
+  New(PSyntax);
+  PSyntax^ := CreateSyntaxInfo('js', JavaScriptReserved, '//', '/*', '*/');
+  self.appendSyntax(PSyntax, 'JavaScript');
 
-  syntaxInfo := createSyntaxInfo('kt', KotlinReserved, '//', '/*', '*/');
-  self.appendSyntax(@SyntaxInfo, 'Kotlin');
+  New(PSyntax);
+  PSyntax^ := CreateSyntaxInfo('kt', KotlinReserved, '//', '/*', '*/');
+  self.appendSyntax(PSyntax, 'Kotlin');
 
-  syntaxInfo := createSyntaxInfo('py', PythonReserved, '#', '"""', '"""');
-  self.appendSyntax(@SyntaxInfo, 'Python');
+  New(PSyntax);
+  PSyntax^ := CreateSyntaxInfo('py', PythonReserved, '#', '"""', '"""');
+  self.appendSyntax(PSyntax, 'Python');
 end;
 
-function TSyntaxList.createSyntaxInfo(const fileExt: shortString;
+function TSyntaxList.CreateSyntaxInfo(const fileExt: shortString;
                                       const rWords: TReserved;
                                       const sLineComment, mLineCommentBegin,
                                       mLineCommentEnd: shortString): TSyntaxInfo;

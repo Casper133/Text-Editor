@@ -90,17 +90,9 @@ Type
     procedure RichEditChange(Sender: TObject);
     procedure onSyntaxTimer(Sender: TObject);
 
-    procedure aCLangExecute(Sender: TObject);
-    procedure aCPlusPlusExecute(Sender: TObject);
-    procedure aCSharpExecute(Sender: TObject);
-    procedure aGoLangExecute(Sender: TObject);
-    procedure aJavaExecute(Sender: TObject);
-    procedure aJavaScriptExecute(Sender: TObject);
-    procedure aKotlinExecute(Sender: TObject);
-    procedure aPythonExecute(Sender: TObject);
+    procedure onSyntaxClick(Sender: TObject);
   private
-    syntaxFileName: string;
-    ProjectPath: string;
+    SyntaxFileName: string;
     SyntaxPath: string;
     SyntaxList: TSyntaxList;
   end;
@@ -114,25 +106,26 @@ Implementation
 
 procedure TMainForm.FormCreate(Sender: TObject);
 var
-  SyntaxPath: string;
+  SyntaxDir: string;
   Languages: TLangNames;
-  i, k: integer;
+  i: integer;
   MenuItem: TMenuItem;
 begin
-  SyntaxPath := '\syntaxes';
-  Self.ProjectPath := GetCurrentDir;
-  Self.SyntaxPath := Self.ProjectPath + SyntaxPath;
+  SyntaxDir := '\syntaxes';
+  Self.SyntaxPath := GetCurrentDir + SyntaxDir;
   Self.SyntaxList := TSyntaxList.create(Self.SyntaxPath);
 
   if not DirectoryExists(Self.SyntaxPath) then
-    Self.SyntaxList.createDefaultSyntaxes();
+    Self.SyntaxList.createDefaultSyntaxes()
+  else
+    Self.SyntaxList.LoadExistingSyntaxFiles();
 
-  k := Self.SyntaxList.Count;
   Languages := Self.SyntaxList.GetAllLanguages();
-  for i := 0 to k - 1 do
+  for i := 0 to Self.SyntaxList.Count - 1 do
   begin
     MenuItem := TMenuItem.Create(Self);
     MenuItem.Caption := Languages[i];
+    MenuItem.OnClick := Self.onSyntaxClick;
     Self.mSyntaxes.Insert(i + 2, MenuItem);
   end;
 end;
@@ -155,11 +148,11 @@ begin
     if Execute then
     begin
       Lines.LoadFromFile(FileName);
-      syntaxFileName := checkFileForCode(FileName);
-      if Length(syntaxFileName) <> 0 then
+      Self.SyntaxFileName := Self.SyntaxList.CheckFileForCode(FileName);
+      if Length(SyntaxFileName) <> 0 then
       begin
         RECopy := TRichEdit.CreateParented(Self.Handle);
-        Highlight(ProjectPath, syntaxFileName, RichEdit, RECopy);
+        Highlight(Self.SyntaxList, Self.SyntaxFileName, Self.RichEdit, RECopy);
       end;
     end;
 end;
@@ -372,7 +365,7 @@ end;
 
 procedure TMainForm.RichEditChange(Sender: TObject);
 begin
-  if syntaxFileName <> '' then
+  if SyntaxFileName <> '' then
     syntaxTimer.Enabled := true;
 end;
 
@@ -384,81 +377,19 @@ begin
   begin
     RECopy := TRichEdit.CreateParented(Self.Handle);
     syntaxTimer.Enabled := false;
-    Highlight(ProjectPath, syntaxFileName, RichEdit, RECopy);
+    Highlight(Self.SyntaxList, Self.SyntaxFileName, Self.RichEdit, RECopy);
   end;
 end;
 
 
-procedure TMainForm.aCLangExecute(Sender: TObject);
+procedure TMainForm.onSyntaxClick(Sender: TObject);
 var
   RECopy: TRichEdit;
 begin
   RECopy := TRichEdit.CreateParented(Self.Handle);
-  syntaxFileName := 'C.syntax';
-  Highlight(ProjectPath, syntaxFileName, RichEdit, RECopy);
-end;
-
-procedure TMainForm.aCPlusPlusExecute(Sender: TObject);
-var
-  RECopy: TRichEdit;
-begin
-  RECopy := TRichEdit.CreateParented(Self.Handle);
-  syntaxFileName := 'C++.syntax';
-  Highlight(ProjectPath, syntaxFileName, RichEdit, RECopy);
-end;
-
-procedure TMainForm.aCSharpExecute(Sender: TObject);
-var
-  RECopy: TRichEdit;
-begin
-  RECopy := TRichEdit.CreateParented(Self.Handle);
-  syntaxFileName := 'C#.syntax';
-  Highlight(ProjectPath, syntaxFileName, RichEdit, RECopy);
-end;
-
-procedure TMainForm.aGoLangExecute(Sender: TObject);
-var
-  RECopy: TRichEdit;
-begin
-  RECopy := TRichEdit.CreateParented(Self.Handle);
-  syntaxFileName := 'Go.syntax';
-  Highlight(ProjectPath, syntaxFileName, RichEdit, RECopy);
-end;
-
-procedure TMainForm.aJavaExecute(Sender: TObject);
-var
-  RECopy: TRichEdit;
-begin
-  RECopy := TRichEdit.CreateParented(Self.Handle);
-  syntaxFileName := 'Java.syntax';
-  Highlight(ProjectPath, syntaxFileName, RichEdit, RECopy);
-end;
-
-procedure TMainForm.aJavaScriptExecute(Sender: TObject);
-var
-  RECopy: TRichEdit;
-begin
-  RECopy := TRichEdit.CreateParented(Self.Handle);
-  syntaxFileName := 'JS.syntax';
-  Highlight(ProjectPath, syntaxFileName, RichEdit, RECopy);
-end;
-
-procedure TMainForm.aKotlinExecute(Sender: TObject);
-var
-  RECopy: TRichEdit;
-begin
-  RECopy := TRichEdit.CreateParented(Self.Handle);
-  syntaxFileName := 'Kotlin.syntax';
-  Highlight(ProjectPath, syntaxFileName, RichEdit, RECopy);
-end;
-
-procedure TMainForm.aPythonExecute(Sender: TObject);
-var
-  RECopy: TRichEdit;
-begin
-  RECopy := TRichEdit.CreateParented(Self.Handle);
-  syntaxFileName := 'Python.syntax';
-  Highlight(ProjectPath, syntaxFileName, RichEdit, RECopy);
+  Self.SyntaxFileName := TMenuItem(Sender).Caption;
+  Delete(Self.SyntaxFileName, 1, 1);
+  Highlight(Self.SyntaxList, Self.SyntaxFileName, Self.RichEdit, RECopy);
 end;
 
 end.

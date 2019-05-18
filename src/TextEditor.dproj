@@ -101,7 +101,6 @@
         <DCCReference Include="Units\Main.pas">
             <Form>MainForm</Form>
         </DCCReference>
-        <DCCReference Include="Units\SyntaxFilesGenerator.pas"/>
         <DCCReference Include="Units\SyntaxHighlighter.pas"/>
         <DCCReference Include="Units\SyntaxFiles.pas"/>
         <BuildConfiguration Include="Release">
