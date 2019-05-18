@@ -6,7 +6,7 @@ uses
   SysUtils;
 
 const
-  SCount = 8;
+  DefaultCount = 8;
 
 type
   TReserved = array [1..50] of string[15];
@@ -20,25 +20,29 @@ type
   end;
 
   PSyntaxInfo = ^TSyntaxInfo;
-  TDefaultSyntaxes = array [1..SCount] of TSyntaxInfo;
+  TDefaultSyntaxes = array [1..DefaultCount] of TSyntaxInfo;
+
+  TLangNames = array of string;
 
   TSyntaxNode = class
   private
     syntax: PSyntaxInfo;
+    syntaxPath: string;
     fileName: string;
     fileExtension: string;
     next: TSyntaxNode;
     prev: TSyntaxNode;
-    constructor create(const syntax: PSyntaxInfo; const fileName: string);
-    procedure updateSyntaxFile(const projectPath: string; fileName: string);
+    constructor create(const syntax: PSyntaxInfo; const syntaxPath, fileName, fileExt: string);
+    procedure updateSyntaxFile();
   end;
 
   TSyntaxList = class
   private
-    projectPath: string;
+    syntaxPath: string;
+    fileExtension: string;
     head: TSyntaxNode;
     tail: TSyntaxNode;
-    count: integer;
+    FCount: integer;
     function getNodeByFileName(const name: string): TSyntaxNode;
     procedure removeNode(var Node: TSyntaxNode);
     procedure fillAsDefault();
@@ -46,41 +50,45 @@ type
                             const sLineComment, mLineCommentBegin,
                             mLineCommentEnd: shortString): TSyntaxInfo;
   public
-    constructor create(const projectPath: string);
+    constructor create(const SyntaxPath: string);
     procedure createDefaultSyntaxes();
     procedure appendSyntax(const syntax: PSyntaxInfo; const fileName: string);
-    procedure removeItemByFileName(const name: string);
+    procedure removeSyntaxByFileName(const name: string);
     function getSyntaxByFileName(const name: string): PSyntaxInfo;
+    function GetCount(): integer;
+    procedure SaveSyntaxFiles();
+    function GetAllLanguages(): TLangNames;
     property syntaxes[const fileName: string]: PSyntaxInfo read getSyntaxByFileName; default;
+    property Count: integer read GetCount;
   end;
 
 implementation
 
 { TSyntaxNode }
 
-constructor TSyntaxNode.create(const syntax: PSyntaxInfo; const fileName: string);
-const
-  SyntaxExtension = '.syntax';
+constructor TSyntaxNode.create(const syntax: PSyntaxInfo; const syntaxPath, fileName, fileExt: string);
 begin
   self.syntax := syntax;
+  self.syntaxPath := syntaxPath;
   self.fileName := fileName;
-  self.fileExtension := SyntaxExtension;
+  self.fileExtension := fileExt;
 end;
 
-procedure TSyntaxNode.updateSyntaxFile(const projectPath: string; fileName: string);
+procedure TSyntaxNode.updateSyntaxFile();
 var
   syntaxFile: file of TSyntaxInfo;
+  fileName: string;
 begin
   if self.syntax <> nil then
   begin
-    if not DirectoryExists(projectPath + '\syntaxes') then
-      CreateDir(projectPath + '\syntaxes');
+    if not DirectoryExists(Self.syntaxPath) then
+      CreateDir(Self.syntaxPath);
 
-    fileName := fileName + self.fileExtension;
+    fileName := Self.fileName + self.fileExtension;
 
-    AssignFile(syntaxFile, projectPath + '\syntaxes\' + fileName);
+    AssignFile(syntaxFile, Self.syntaxPath + '\' + fileName);
     Rewrite(syntaxFile);
-    Write(syntaxFile, self.syntax^);
+    Write(syntaxFile, Self.syntax^);
     CloseFile(syntaxFile);
   end;
 end;
@@ -90,24 +98,27 @@ end;
 
 { public }
 
-constructor TSyntaxList.create(const projectPath: string);
+constructor TSyntaxList.create(const SyntaxPath: string);
+const
+  FileExtension = '.syntax';
 begin
-  self.projectPath := projectPath;
+  self.syntaxPath := SyntaxPath;
+  self.fileExtension := FileExtension;
 end;
 
 procedure TSyntaxList.createDefaultSyntaxes;
 begin
-  if DirectoryExists(projectPath + '\syntaxes') then
-      RemoveDir(projectPath + '\syntaxes');
+  if DirectoryExists(Self.syntaxPath) then
+      RemoveDir(Self.syntaxPath);
 
-  self.fillAsDefault;
+  Self.fillAsDefault;
 end;
 
 procedure TSyntaxList.appendSyntax(const syntax: PSyntaxInfo; const fileName: string);
 var
   syntaxNode: TSyntaxNode;
 begin
-  syntaxNode := TSyntaxNode.create(syntax, fileName);
+  syntaxNode := TSyntaxNode.create(syntax, self.syntaxPath, fileName, self.fileExtension);
 
   if self.head = nil then
   begin
@@ -121,11 +132,11 @@ begin
     self.tail := syntaxNode;
   end;
 
-  syntaxNode.updateSyntaxFile(self.projectPath, fileName);
-  inc(self.count);
+  syntaxNode.updateSyntaxFile();
+  inc(self.FCount);
 end;
 
-procedure TSyntaxList.removeItemByFileName(const name: string);
+procedure TSyntaxList.removeSyntaxByFileName(const name: string);
 var
   Node: TSyntaxNode;
 begin
@@ -144,6 +155,39 @@ begin
     Result := Node.syntax
   else
     Result := nil;
+end;
+
+function TSyntaxList.GetCount(): integer;
+begin
+  Result := Self.FCount;
+end;
+
+procedure TSyntaxList.SaveSyntaxFiles();
+var
+  CurrNode: TSyntaxNode;
+begin
+  CurrNode := Self.head;
+  while CurrNode <> nil do
+  begin
+    CurrNode.updateSyntaxFile();
+    CurrNode := CurrNode.next;
+  end;
+end;
+
+function TSyntaxList.GetAllLanguages(): TLangNames;
+var
+  CurrNode: TSyntaxNode;
+  i: integer;
+begin
+  CurrNode := Self.head;
+  SetLength(Result, Self.FCount);
+
+  if Self.FCount <> 0 then
+    for i := 0 to Self.FCount - 1 do
+    begin
+      Result[i] := CurrNode.fileName;
+      CurrNode := CurrNode.next;
+    end;
 end;
 
 { private }
@@ -170,19 +214,20 @@ end;
 procedure TSyntaxList.removeNode(var Node: TSyntaxNode);
 begin
   if (Node <> Self.head) and (Node <> Self.tail) then
-    begin
-      Node.prev.next := Node.next;
-      Node.next.prev := Node.prev;
-    end
-    else if Node = Self.head then
-      Self.head := Node.next
-    else if Node = Self.tail then
-      Self.tail := Node.prev;
+  begin
+    Node.prev.next := Node.next;
+    Node.next.prev := Node.prev;
+  end
+  else if Node = Self.head then
+    Self.head := Node.next
+  else if Node = Self.tail then
+    Self.tail := Node.prev;
 
-  Dec(Self.count);
+  DeleteFile(Self.syntaxPath + '\' + Node.fileName + Node.fileExtension);
+  Dec(Self.FCount);
 end;
 
-procedure TSyntaxList.fillAsDefault;
+procedure TSyntaxList.fillAsDefault();
 const
   CLangReserved: TReserved =
                   ('auto', 'break', 'case', 'char', 'const', 'continue',
@@ -260,7 +305,7 @@ begin
   self.appendSyntax(@SyntaxInfo, 'C++');
 
   syntaxInfo := createSyntaxInfo('cs', CSharpReserved, '//', '/*', '*/');
-  self.appendSyntax(@SyntaxInfo, 'С#');
+  self.appendSyntax(@SyntaxInfo, 'C#');
 
   syntaxInfo := createSyntaxInfo('go', GoLangReserved, '//', '/*', '*/');
   self.appendSyntax(@SyntaxInfo, 'Go');
@@ -269,7 +314,7 @@ begin
   self.appendSyntax(@SyntaxInfo, 'Java');
 
   syntaxInfo := createSyntaxInfo('js', JavaScriptReserved, '//', '/*', '*/');
-  self.appendSyntax(@SyntaxInfo, 'JS');
+  self.appendSyntax(@SyntaxInfo, 'JavaScript');
 
   syntaxInfo := createSyntaxInfo('kt', KotlinReserved, '//', '/*', '*/');
   self.appendSyntax(@SyntaxInfo, 'Kotlin');

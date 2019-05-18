@@ -2215,29 +2215,11 @@ object MainForm: TMainForm
     end
     object mSyntaxes: TMenuItem
       Caption = #1057#1080#1085#1090#1072#1082#1089#1080#1089#1099
-      object mCLang: TMenuItem
-        Action = aCLang
+      object mSyntaxMenu: TMenuItem
+        Action = aSyntaxMenu
       end
-      object mCPlusPlus: TMenuItem
-        Action = aCPlusPlus
-      end
-      object mCSharp: TMenuItem
-        Action = aCSharp
-      end
-      object mGoLang: TMenuItem
-        Action = aGoLang
-      end
-      object mJava: TMenuItem
-        Action = aJava
-      end
-      object mJavaScript: TMenuItem
-        Action = aJavaScript
-      end
-      object mKotlin: TMenuItem
-        Action = aKotlin
-      end
-      object mPython: TMenuItem
-        Action = aPython
+      object Separator3: TMenuItem
+        Caption = '-'
       end
     end
     object mAbout: TMenuItem
@@ -2378,49 +2360,13 @@ object MainForm: TMainForm
       ShortCut = 16456
       OnExecute = aReplaceExecute
     end
-    object aCLang: TAction
-      Category = 'acSyntax'
-      Caption = 'C'
-      OnExecute = aCLangExecute
-    end
-    object aCSharp: TAction
-      Category = 'acSyntax'
-      Caption = 'C#'
-      OnExecute = aCSharpExecute
-    end
-    object aCPlusPlus: TAction
-      Category = 'acSyntax'
-      Caption = 'C++'
-      OnExecute = aCPlusPlusExecute
-    end
-    object aGoLang: TAction
-      Category = 'acSyntax'
-      Caption = 'Go'
-      OnExecute = aGoLangExecute
-    end
-    object aJava: TAction
-      Category = 'acSyntax'
-      Caption = 'Java'
-      OnExecute = aJavaExecute
-    end
-    object aJavaScript: TAction
-      Category = 'acSyntax'
-      Caption = 'JavaScript'
-      OnExecute = aJavaScriptExecute
-    end
-    object aKotlin: TAction
-      Category = 'acSyntax'
-      Caption = 'Kotlin'
-      OnExecute = aKotlinExecute
-    end
-    object aPython: TAction
-      Category = 'acSyntax'
-      Caption = 'Python'
-      OnExecute = aPythonExecute
-    end
     object aAboutProgram: TAction
       Category = 'acAbout'
       Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077'...'
+    end
+    object aSyntaxMenu: TAction
+      Category = 'acSyntax'
+      Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080'...'
     end
   end
   object FindDialog: TFindDialog

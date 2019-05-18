@@ -10,7 +10,7 @@ uses
 {$R *.res}
 
 Begin
-  runSyntaxFilesGenerator;
+  // runSyntaxFilesGenerator;
 
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
