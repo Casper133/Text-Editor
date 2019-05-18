@@ -6,7 +6,7 @@ Uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   System.Actions, Vcl.ActnList, Vcl.Menus, Vcl.StdCtrls, Vcl.ComCtrls,
-  Vcl.ExtDlgs, Vcl.ExtCtrls, SyntaxHighlighter, SyntaxFiles;
+  Vcl.ExtDlgs, Vcl.ExtCtrls, SyntaxHighlighter, SyntaxFiles, SyntaxEditor;
 
 Type
   TMainForm = class(TForm)
@@ -64,6 +64,7 @@ Type
     syntaxTimer: TTimer;
 
     procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
 
     procedure aNewFileExecute(Sender: TObject);
     procedure aOpenFileExecute(Sender: TObject);
@@ -87,14 +88,16 @@ Type
     procedure ReplaceDialogFind(Sender: TObject);
     procedure ReplaceDialogReplace(Sender: TObject);
 
+    procedure aSyntaxMenuExecute(Sender: TObject);
+    procedure onSyntaxClick(Sender: TObject);
+
     procedure RichEditChange(Sender: TObject);
     procedure onSyntaxTimer(Sender: TObject);
-
-    procedure onSyntaxClick(Sender: TObject);
   private
     SyntaxFileName: string;
     SyntaxPath: string;
     SyntaxList: TSyntaxList;
+    FmSyntaxEditor: TFmSyntaxEditor;
   end;
 
 Var
@@ -128,6 +131,11 @@ begin
     MenuItem.OnClick := Self.onSyntaxClick;
     Self.mSyntaxes.Insert(i + 2, MenuItem);
   end;
+end;
+
+procedure TMainForm.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Self.SyntaxList.SaveSyntaxFiles();
 end;
 
 
@@ -363,6 +371,28 @@ begin
 end;
 
 
+procedure TMainForm.aSyntaxMenuExecute(Sender: TObject);
+begin
+  if not Assigned(Self.FmSyntaxEditor) then
+  begin
+    Self.FmSyntaxEditor := TFmSyntaxEditor.Create(Self);
+    Self.FmSyntaxEditor.SyntaxList := Self.SyntaxList;
+  end;
+
+  Self.FmSyntaxEditor.ShowModal;
+end;
+
+procedure TMainForm.onSyntaxClick(Sender: TObject);
+var
+  RECopy: TRichEdit;
+begin
+  RECopy := TRichEdit.CreateParented(Self.Handle);
+  Self.SyntaxFileName := TMenuItem(Sender).Caption;
+  Delete(Self.SyntaxFileName, 1, 1);
+  Highlight(Self.SyntaxList, Self.SyntaxFileName, Self.RichEdit, RECopy);
+end;
+
+
 procedure TMainForm.RichEditChange(Sender: TObject);
 begin
   if SyntaxFileName <> '' then
@@ -379,17 +409,6 @@ begin
     syntaxTimer.Enabled := false;
     Highlight(Self.SyntaxList, Self.SyntaxFileName, Self.RichEdit, RECopy);
   end;
-end;
-
-
-procedure TMainForm.onSyntaxClick(Sender: TObject);
-var
-  RECopy: TRichEdit;
-begin
-  RECopy := TRichEdit.CreateParented(Self.Handle);
-  Self.SyntaxFileName := TMenuItem(Sender).Caption;
-  Delete(Self.SyntaxFileName, 1, 1);
-  Highlight(Self.SyntaxList, Self.SyntaxFileName, Self.RichEdit, RECopy);
 end;
 
 end.

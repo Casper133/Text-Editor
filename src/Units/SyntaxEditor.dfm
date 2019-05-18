@@ -1,10 +1,14 @@
-object MainForm: TMainForm
+object FmSyntaxEditor: TFmSyntaxEditor
   Left = 0
   Top = 0
-  Caption = 'Text Editor'
-  ClientHeight = 500
-  ClientWidth = 800
+  Caption = #1056#1077#1076#1072#1082#1090#1086#1088' '#1089#1080#1085#1090#1072#1082#1089#1080#1089#1072
+  ClientHeight = 553
+  ClientWidth = 382
   Color = clBtnFace
+  Constraints.MaxHeight = 600
+  Constraints.MaxWidth = 400
+  Constraints.MinHeight = 600
+  Constraints.MinWidth = 400
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -13
@@ -2125,262 +2129,125 @@ object MainForm: TMainForm
     FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
     FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
     FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
-  Menu = mMenu
   OldCreateOrder = False
   Position = poDesktopCenter
-  OnClose = FormClose
-  OnCreate = FormCreate
   PixelsPerInch = 120
   TextHeight = 16
-  object RichEdit: TRichEdit
-    Left = 0
-    Top = 0
-    Width = 800
-    Height = 500
-    Align = alClient
-    Font.Charset = RUSSIAN_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -15
-    Font.Name = 'Courier New'
-    Font.Style = []
-    ParentFont = False
-    ScrollBars = ssVertical
+  object lblReservedWords: TLabel
+    Left = 25
+    Top = 132
+    Width = 251
+    Height = 16
+    Caption = #1047#1072#1088#1077#1079#1077#1088#1074#1080#1088#1086#1074#1072#1085#1085#1099#1077' '#1089#1083#1086#1074#1072' ('#1084#1072#1082#1089#1080#1084#1091#1084' 50):'
+  end
+  object lblSingleLnComment: TLabel
+    Left = 25
+    Top = 266
+    Width = 267
+    Height = 16
+    Caption = #1057#1080#1084#1074#1086#1083' '#1085#1072#1095#1072#1083#1072' '#1086#1076#1085#1086#1089#1090#1088#1086#1095#1085#1086#1075#1086' '#1082#1086#1084#1084#1077#1085#1090#1072#1088#1080#1103':'
+  end
+  object lblMultLnCommentBegin: TLabel
+    Left = 25
+    Top = 330
+    Width = 273
+    Height = 16
+    Caption = #1057#1080#1084#1074#1086#1083' '#1085#1072#1095#1072#1083#1072' '#1084#1085#1086#1075#1086#1089#1090#1088#1086#1095#1085#1086#1075#1086' '#1082#1086#1084#1084#1077#1085#1090#1072#1088#1080#1103':'
+  end
+  object lblMultLnCommentEnd: TLabel
+    Left = 25
+    Top = 400
+    Width = 265
+    Height = 16
+    Caption = #1057#1080#1084#1074#1086#1083' '#1082#1086#1085#1094#1072' '#1084#1085#1086#1075#1086#1089#1090#1088#1086#1095#1085#1086#1075#1086' '#1082#1086#1084#1084#1077#1085#1090#1072#1088#1080#1103':'
+  end
+  object lblFileExtension: TLabel
+    Left = 25
+    Top = 66
+    Width = 229
+    Height = 16
+    Caption = #1056#1072#1089#1096#1080#1088#1077#1085#1080#1077' '#1092#1072#1081#1083#1072' '#1089' '#1080#1089#1093#1086#1076#1085#1099#1084' '#1082#1086#1076#1086#1084':'
+  end
+  object cbbSyntax: TComboBox
+    Left = 25
+    Top = 20
+    Width = 153
+    Height = 24
+    Style = csDropDownList
     TabOrder = 0
-    Zoom = 100
-    OnChange = RichEditChange
+    TextHint = #1042#1099#1073#1077#1088#1080#1090#1077' '#1071#1055
+    OnChange = cbbSyntaxChange
   end
-  object mMenu: TMainMenu
-    Left = 24
-    Top = 440
-    object mFile: TMenuItem
-      Caption = #1060#1072#1081#1083
-      object mNew: TMenuItem
-        Action = aNewFile
-      end
-      object mOpen: TMenuItem
-        Action = aOpenFile
-      end
-      object mSave: TMenuItem
-        Action = aSaveFile
-      end
-      object mSaveAs: TMenuItem
-        Action = aSaveAsFile
-      end
-      object Separator1: TMenuItem
-        Caption = '-'
-      end
-      object mExit: TMenuItem
-        Action = aExit
-      end
-    end
-    object mEdit: TMenuItem
-      Caption = #1055#1088#1072#1074#1082#1072
-      object mUndo: TMenuItem
-        Action = aUndo
-      end
-      object mRedo: TMenuItem
-        Action = aRedo
-      end
-      object mCut: TMenuItem
-        Action = aCut
-      end
-      object mCopy: TMenuItem
-        Action = aCopy
-      end
-      object mPaste: TMenuItem
-        Action = aPaste
-      end
-      object mDelete: TMenuItem
-        Action = aDelete
-      end
-      object mSelectAll: TMenuItem
-        Action = aSelectAll
-      end
-      object Separator2: TMenuItem
-        Caption = '-'
-      end
-      object mInsertIndent: TMenuItem
-        Action = aInsertIndent
-      end
-      object mDeleteIndent: TMenuItem
-        Action = aDeleteIndent
-      end
-    end
-    object mSearch: TMenuItem
-      Caption = #1055#1086#1080#1089#1082
-      object mFind: TMenuItem
-        Action = aFind
-      end
-      object mReplace: TMenuItem
-        Action = aReplace
-      end
-    end
-    object mSyntaxes: TMenuItem
-      Caption = #1057#1080#1085#1090#1072#1082#1089#1080#1089#1099
-      object mSyntaxMenu: TMenuItem
-        Action = aSyntaxMenu
-      end
-      object Separator3: TMenuItem
-        Caption = '-'
-      end
-    end
-    object mAbout: TMenuItem
-      Caption = '?'
-      object mAboutProgram: TMenuItem
-        Action = aAboutProgram
-      end
-    end
+  object btnCreate: TButton
+    Left = 248
+    Top = 16
+    Width = 113
+    Height = 33
+    Caption = #1053#1086#1074#1099#1081'...'
+    TabOrder = 1
+    OnClick = btnCreateClick
   end
-  object fOpenDialog: TOpenTextFileDialog
-    Filter = 
-      'All files (*.*)|*.*|Text file (*.txt)|*.txt|C source file (*.c)|' +
-      '*.c|C++ source file (*.cpp)|*.cpp|C# source file (*.cs)|*.cs|Go ' +
-      'source file (*.go)|*.go|Java source file (*.java)|*.java|JavaScr' +
-      'ipt source file (*.js)|*.js|Kotlin source file (*.kt)|*.kt|Pytho' +
-      'n source file (*.py)|*.py'
-    EncodingIndex = 4
-    Left = 128
-    Top = 440
+  object memReservedWords: TMemo
+    Left = 25
+    Top = 154
+    Width = 336
+    Height = 89
+    ScrollBars = ssVertical
+    TabOrder = 2
   end
-  object fSaveDialog: TSaveTextFileDialog
-    DefaultExt = 'txt'
-    FileName = 'New'
-    Filter = 
-      'All files (*.*)|*.*|Text file (*.txt)|*.txt|C source file (*.c)|' +
-      '*.c|C++ source file (*.cpp)|*.cpp|C# source file (*.cs)|*.cs|Go ' +
-      'source file (*.go)|*.go|Java source file (*.java)|*.java|JavaScr' +
-      'ipt source file (*.js)|*.js|Kotlin source file (*.kt)|*.kt|Pytho' +
-      'n source file (*.py)|*.py'
-    FilterIndex = 2
-    EncodingIndex = 4
-    Left = 208
-    Top = 440
+  object edtSingleLnComment: TEdit
+    Left = 25
+    Top = 288
+    Width = 336
+    Height = 24
+    TabOrder = 3
   end
-  object syntaxTimer: TTimer
-    Enabled = False
-    Interval = 2000
-    OnTimer = onSyntaxTimer
-    Left = 440
-    Top = 440
+  object edtMultLnCommentBegin: TEdit
+    Left = 25
+    Top = 352
+    Width = 336
+    Height = 24
+    TabOrder = 4
   end
-  object aList: TActionList
-    Left = 72
-    Top = 440
-    object aNewFile: TAction
-      Category = 'acFile'
-      Caption = #1053#1086#1074#1099#1081
-      ShortCut = 16462
-      OnExecute = aNewFileExecute
-    end
-    object aUndo: TAction
-      Category = 'acEdit'
-      Caption = #1054#1090#1084#1077#1085#1072
-      ShortCut = 16474
-      OnExecute = aUndoExecute
-    end
-    object aOpenFile: TAction
-      Category = 'acFile'
-      Caption = #1054#1090#1082#1088#1099#1090#1100
-      ShortCut = 16463
-      OnExecute = aOpenFileExecute
-    end
-    object aSaveFile: TAction
-      Category = 'acFile'
-      Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
-      ShortCut = 16467
-      OnExecute = aSaveFileExecute
-    end
-    object aSaveAsFile: TAction
-      Category = 'acFile'
-      Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1082#1072#1082'...'
-      ShortCut = 49235
-      OnExecute = aSaveAsFileExecute
-    end
-    object aExit: TAction
-      Category = 'acFile'
-      Caption = #1042#1099#1093#1086#1076
-      ShortCut = 32856
-      OnExecute = aExitExecute
-    end
-    object aRedo: TAction
-      Category = 'acEdit'
-      Caption = #1055#1086#1074#1090#1086#1088
-      ShortCut = 24666
-      OnExecute = aRedoExecute
-    end
-    object aCut: TAction
-      Category = 'acEdit'
-      Caption = #1042#1099#1088#1077#1079#1072#1090#1100
-      ShortCut = 16472
-      OnExecute = aCutExecute
-    end
-    object aCopy: TAction
-      Category = 'acEdit'
-      Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100
-      ShortCut = 16451
-      OnExecute = aCopyExecute
-    end
-    object aPaste: TAction
-      Category = 'acEdit'
-      Caption = #1042#1089#1090#1072#1074#1080#1090#1100
-      ShortCut = 16470
-      OnExecute = aPasteExecute
-    end
-    object aDelete: TAction
-      Category = 'acEdit'
-      Caption = #1059#1076#1072#1083#1080#1090#1100
-      ShortCut = 46
-      OnExecute = aDeleteExecute
-    end
-    object aSelectAll: TAction
-      Category = 'acEdit'
-      Caption = #1042#1099#1076#1077#1083#1080#1090#1100' '#1074#1089#1105
-      ShortCut = 16449
-      OnExecute = aSelectAllExecute
-    end
-    object aInsertIndent: TAction
-      Category = 'acEdit'
-      Caption = #1042#1089#1090#1072#1074#1080#1090#1100' '#1086#1090#1089#1090#1091#1087
-      ShortCut = 9
-      OnExecute = aInsertIndentExecute
-    end
-    object aDeleteIndent: TAction
-      Category = 'acEdit'
-      Caption = #1059#1076#1072#1083#1080#1090#1100' '#1086#1090#1089#1090#1091#1087
-      ShortCut = 8201
-      OnExecute = aDeleteIndentExecute
-    end
-    object aFind: TAction
-      Category = 'acSearch'
-      Caption = #1053#1072#1081#1090#1080'...'
-      ShortCut = 16454
-      OnExecute = aFindExecute
-    end
-    object aReplace: TAction
-      Category = 'acSearch'
-      Caption = #1047#1072#1084#1077#1085#1072'...'
-      ShortCut = 16456
-      OnExecute = aReplaceExecute
-    end
-    object aAboutProgram: TAction
-      Category = 'acAbout'
-      Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077'...'
-    end
-    object aSyntaxMenu: TAction
-      Category = 'acSyntax'
-      Caption = #1056#1077#1076#1072#1082#1090#1086#1088'...'
-      OnExecute = aSyntaxMenuExecute
-    end
+  object edtMultLnCommentEnd: TEdit
+    Left = 25
+    Top = 422
+    Width = 336
+    Height = 24
+    TabOrder = 5
   end
-  object FindDialog: TFindDialog
-    OnFind = FindDialogFind
-    Left = 280
-    Top = 440
+  object btnSave: TButton
+    Left = 38
+    Top = 465
+    Width = 148
+    Height = 33
+    Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
+    TabOrder = 6
+    OnClick = btnSaveClick
   end
-  object ReplaceDialog: TReplaceDialog
-    OnFind = ReplaceDialogFind
-    OnReplace = ReplaceDialogReplace
-    Left = 360
-    Top = 440
+  object btnReset: TButton
+    Left = 100
+    Top = 520
+    Width = 185
+    Height = 25
+    Caption = #1057#1073#1088#1086#1089#1080#1090#1100' '#1082' '#1089#1090#1072#1085#1076#1072#1088#1090#1085#1099#1084'...'
+    TabOrder = 7
+    OnClick = btnResetClick
+  end
+  object edtFileExtension: TEdit
+    Left = 25
+    Top = 88
+    Width = 336
+    Height = 24
+    TabOrder = 8
+  end
+  object btnRemove: TButton
+    Left = 200
+    Top = 465
+    Width = 148
+    Height = 33
+    Caption = #1059#1076#1072#1083#1080#1090#1100'...'
+    TabOrder = 9
+    OnClick = btnRemoveClick
   end
 end

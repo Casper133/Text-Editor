@@ -48,21 +48,23 @@ type
     function GetNodeByFileExtension(const FileExt: string): TSyntaxNode;
     procedure RemoveNode(var Node: TSyntaxNode);
     procedure FillAsDefault();
-    function CreateSyntaxInfo(const fileExt: shortString; const rWords: TReserved;
-                            const sLineComment, mLineCommentBegin,
-                            mLineCommentEnd: shortString): TSyntaxInfo;
   public
     constructor create(const SyntaxPath: string);
     procedure createDefaultSyntaxes();
     procedure LoadExistingSyntaxFiles();
-    procedure appendSyntax(const Syntax: PSyntaxInfo; const fileName: string);
+    function IsFileExist(const FileName: string): boolean;
+    function CreateSyntaxInfo(const fileExt: shortString; const rWords: TReserved;
+                            const sLineComment, mLineCommentBegin,
+                            mLineCommentEnd: shortString): TSyntaxInfo;
+    procedure AppendSyntax(const Syntax: PSyntaxInfo; const fileName: string);
     procedure removeSyntaxByFileName(const name: string);
-    function getSyntaxByFileName(const name: string): PSyntaxInfo;
+    function GetSyntaxByFileName(const name: string): PSyntaxInfo;
     function GetCount(): integer;
     procedure SaveSyntaxFiles();
+    procedure ClearList();
     function GetAllLanguages(): TLangNames;
     function CheckFileForCode(const FilePath: string): string;
-    property Syntaxes[const fileName: string]: PSyntaxInfo read getSyntaxByFileName; default;
+    property Syntaxes[const fileName: string]: PSyntaxInfo read GetSyntaxByFileName; default;
     property Count: integer read GetCount;
   end;
 
@@ -112,9 +114,6 @@ end;
 
 procedure TSyntaxList.createDefaultSyntaxes();
 begin
-  if DirectoryExists(Self.syntaxPath) then
-      RemoveDir(Self.syntaxPath);
-
   Self.FillAsDefault();
 end;
 
@@ -135,11 +134,41 @@ begin
     New(Syntax);
     Syntax^ := Self.GetSyntaxInfoFromFile(FilePath);
     fileName := TRegEx.Match(FilePath, StrFilePattern).Groups[1].Value;
-    Self.appendSyntax(Syntax, fileName);
+    Self.AppendSyntax(Syntax, fileName);
   end;
 end;
 
-procedure TSyntaxList.appendSyntax(const Syntax: PSyntaxInfo; const fileName: string);
+function TSyntaxList.IsFileExist(const FileName: string): boolean;
+var
+  SyntaxNode: TSyntaxNode;
+begin
+  SyntaxNode := Self.GetNodeByFileName(FileName);
+  if SyntaxNode = nil then
+    Result := False
+  else
+    Result := True;
+end;
+
+function TSyntaxList.CreateSyntaxInfo(const fileExt: shortString;
+                                      const rWords: TReserved;
+                                      const sLineComment, mLineCommentBegin,
+                                      mLineCommentEnd: shortString): TSyntaxInfo;
+var
+  syntaxInfo: TSyntaxInfo;
+begin
+  with syntaxInfo do
+  begin
+    FileExtension := fileExt;
+    ReservedWords := RWords;
+    SingleLineComment := sLineComment;
+    MultiLineComment[1] := mLineCommentBegin;
+    MultiLineComment[2] := mLineCommentEnd;
+  end;
+
+  Result := syntaxInfo;
+end;
+
+procedure TSyntaxList.AppendSyntax(const Syntax: PSyntaxInfo; const fileName: string);
 var
   syntaxNode: TSyntaxNode;
 begin
@@ -171,7 +200,7 @@ begin
     Self.RemoveNode(Node);
 end;
 
-function TSyntaxList.getSyntaxByFileName(const name: string): PSyntaxInfo;
+function TSyntaxList.GetSyntaxByFileName(const name: string): PSyntaxInfo;
 var
   Node: TSyntaxNode;
 begin
@@ -197,6 +226,24 @@ begin
     CurrNode.updateSyntaxFile();
     CurrNode := CurrNode.next;
   end;
+end;
+
+procedure TSyntaxList.ClearList;
+var
+  CurrNode, BufNode: TSyntaxNode;
+begin
+  CurrNode := Self.head;
+  while CurrNode <> nil do
+  begin
+    BufNode := CurrNode.next;
+    Dispose(CurrNode.syntax);
+    CurrNode.Destroy();
+    CurrNode := BufNode;
+  end;
+
+  Self.head := nil;
+  Self.tail := nil;
+  Self.FCount := 0;
 end;
 
 function TSyntaxList.GetAllLanguages(): TLangNames;
@@ -383,54 +430,35 @@ var
 begin
   New(PSyntax);
   PSyntax^ := CreateSyntaxInfo('cs', CSharpReserved, '//', '/*', '*/');
-  self.appendSyntax(PSyntax, 'C#');
+  self.AppendSyntax(PSyntax, 'C#');
 
   New(PSyntax);
   PSyntax^ := CreateSyntaxInfo('cpp', CPlusPlusReserved, '//', '/*', '*/');
-  self.appendSyntax(PSyntax, 'C++');
+  self.AppendSyntax(PSyntax, 'C++');
 
   New(PSyntax);
   PSyntax^ := CreateSyntaxInfo('c', CLangReserved, '//', '/*', '*/');
-  self.appendSyntax(PSyntax, 'C');
+  self.AppendSyntax(PSyntax, 'C');
 
   New(PSyntax);
   PSyntax^ := CreateSyntaxInfo('go', GoLangReserved, '//', '/*', '*/');
-  self.appendSyntax(PSyntax, 'Go');
+  self.AppendSyntax(PSyntax, 'Go');
 
   New(PSyntax);
   PSyntax^ := CreateSyntaxInfo('java', JavaReserved, '//', '/*', '*/');
-  self.appendSyntax(PSyntax, 'Java');
+  self.AppendSyntax(PSyntax, 'Java');
 
   New(PSyntax);
   PSyntax^ := CreateSyntaxInfo('js', JavaScriptReserved, '//', '/*', '*/');
-  self.appendSyntax(PSyntax, 'JavaScript');
+  self.AppendSyntax(PSyntax, 'JavaScript');
 
   New(PSyntax);
   PSyntax^ := CreateSyntaxInfo('kt', KotlinReserved, '//', '/*', '*/');
-  self.appendSyntax(PSyntax, 'Kotlin');
+  self.AppendSyntax(PSyntax, 'Kotlin');
 
   New(PSyntax);
   PSyntax^ := CreateSyntaxInfo('py', PythonReserved, '#', '"""', '"""');
-  self.appendSyntax(PSyntax, 'Python');
-end;
-
-function TSyntaxList.CreateSyntaxInfo(const fileExt: shortString;
-                                      const rWords: TReserved;
-                                      const sLineComment, mLineCommentBegin,
-                                      mLineCommentEnd: shortString): TSyntaxInfo;
-var
-  syntaxInfo: TSyntaxInfo;
-begin
-  with syntaxInfo do
-  begin
-    FileExtension := fileExt;
-    ReservedWords := RWords;
-    SingleLineComment := sLineComment;
-    MultiLineComment[1] := mLineCommentBegin;
-    MultiLineComment[2] := mLineCommentEnd;
-  end;
-
-  Result := syntaxInfo;
+  self.AppendSyntax(PSyntax, 'Python');
 end;
 
 End.
