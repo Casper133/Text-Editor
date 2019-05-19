@@ -1,7 +1,7 @@
 # Text Editor
 Текущая версия: 1.0
 
-[Скачать .exe](https://github.com/Casper133/text-editor/raw/master/src/Win32/Release/TextEditor.exe)
+[Скачать .exe](https://github.com/Casper133/TextEditor/releases/download/v1.0/TextEditor.exe)
 
 Фичи:
 - Подсветка синтаксиса
