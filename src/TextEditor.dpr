@@ -2,11 +2,11 @@
 
 uses
   Vcl.Forms,
-  Main in 'Units\Main.pas' {MainForm},
-  SyntaxHighlighter in 'Units\SyntaxHighlighter.pas',
-  SyntaxFiles in 'Units\SyntaxFiles.pas',
-  SyntaxEditor in 'Units\SyntaxEditor.pas' {FmSyntaxEditor},
-  NewSyntaxView in 'Units\NewSyntaxView.pas' {FmNewSyntax};
+  uMainView in 'Forms\uMainView.pas' {FmMain},
+  uSyntaxEditorView in 'Forms\uSyntaxEditorView.pas' {FmSyntaxEditor},
+  uNewSyntaxView in 'Forms\uNewSyntaxView.pas' {FmNewSyntax},
+  uSyntaxHighlighter in 'Units\uSyntaxHighlighter.pas' {/uSyntaxFiles in 'Units\uSyntaxFiles.pas';},
+  uSyntaxEntity in 'Units\uSyntaxEntity.pas';
 
 {$R *.res}
 
@@ -14,7 +14,7 @@ Begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
   Application.Title := 'Text Editor';
-  Application.CreateForm(TMainForm, MainForm);
+  Application.CreateForm(TFmMain, FmMain);
   Application.CreateForm(TFmSyntaxEditor, FmSyntaxEditor);
   Application.CreateForm(TFmNewSyntax, FmNewSyntax);
   Application.Run;

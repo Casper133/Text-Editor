@@ -1,4 +1,4 @@
-﻿unit NewSyntaxView;
+﻿unit uNewSyntaxView;
 
 interface
 
@@ -32,8 +32,8 @@ implementation
 procedure TFmNewSyntax.btnAddClick(Sender: TObject);
 var
   SyntaxName: string;
-  ItemsCount: integer;
-  IsNameExist: boolean;
+  ItemsCount: Integer;
+  IsNameExist: Boolean;
   i: Integer;
 begin
   IsNameExist := False;
