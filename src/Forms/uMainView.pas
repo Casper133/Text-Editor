@@ -5,8 +5,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, Vcl.Controls, Vcl.StdCtrls, Vcl.Forms,
   Vcl.Dialogs, Vcl.ActnList, Vcl.Menus, Vcl.ComCtrls, Vcl.ExtDlgs, Vcl.ExtCtrls,
-  Classes, Actions, SysUtils, uSyntaxEntity, uSyntaxHighlighter,
-  uSyntaxEditorView;
+  Vcl.ToolWin, Vcl.ImgList, Classes, Actions, ImageList, SysUtils,
+  uSyntaxEntity, uSyntaxHighlighter, uSyntaxEditorView;
 
 type
   TFmMain = class(TForm)
@@ -57,11 +57,25 @@ type
     actReplace: TAction;
     actSyntaxMenu: TAction;
     actAboutProgram: TAction;
+    tbMain: TToolBar;
+    tbNew: TToolButton;
+    tbOpen: TToolButton;
+    tbSave: TToolButton;
+    tbSaveAs: TToolButton;
+    tbUndo: TToolButton;
+    tbRedo: TToolButton;
+    tbCut: TToolButton;
+    tbCopy: TToolButton;
+    tbPaste: TToolButton;
+    tbFind: TToolButton;
+    tbSeparator1: TToolButton;
+    tbSeparator2: TToolButton;
     dlgOpen: TOpenTextFileDialog;
     dlgSave: TSaveTextFileDialog;
     dlgFind: TFindDialog;
     dlgReplace: TReplaceDialog;
     tmSyntax: TTimer;
+    IconsList: TImageList;
 
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
