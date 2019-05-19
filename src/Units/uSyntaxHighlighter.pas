@@ -1,282 +1,324 @@
-﻿Unit uSyntaxHighlighter;
+﻿unit uSyntaxHighlighter;
 
-Interface
+interface
 
-Uses
+uses
   Winapi.Windows, Winapi.Messages, Vcl.Graphics, Vcl.ComCtrls, Classes,
   StrUtils, uSyntaxEntity;
 
-Procedure Highlight(var SyntaxList: TSyntaxList; fileName: string; var RichEdit, RECopy: TRichEdit);
+procedure RepaintOff(var ARichEdit: TRichEdit; var EventMask: Integer);
+procedure RepaintRichEdit(var ARichEdit: TRichEdit; var EventMask: Integer);
 
-Implementation
+procedure SaveSelects(var ARichEdit: TRichEdit; var SelStart, SelLen: Integer);
+procedure LoadSelects(var ARichEdit: TRichEdit; var SelStart, SelLen: Integer);
 
-Procedure Highlight(var SyntaxList: TSyntaxList; fileName: string; var RichEdit, RECopy: TRichEdit);
-// Разделители - символы, около которых могут быть зарезервированные слова
+procedure SaveScrolls(var ARichEdit: TRichEdit; var ScrollInfoH,
+  ScrollInfoV: tagSCROLLINFO);
+procedure LoadScrolls(var ARichEdit: TRichEdit; var ScrollInfoH,
+  ScrollInfoV: tagSCROLLINFO);
+
+procedure FillMemoryRichEdit(var ARichEditMain, ARichEditCopy: TRichEdit);
+procedure FillMainRichEdit(var ARichEditMain, ARichEditCopy: TRichEdit);
+
+procedure Highlight(var ASyntaxList: TSyntaxList; const ASyntaxName: string;
+  var ARichEditMain, ARichEditCopy: TRichEdit);
+
+implementation
+
+procedure RepaintOff(var ARichEdit: TRichEdit; var EventMask: Integer);
+begin
+  ARichEdit.DoubleBuffered := True;
+  SendMessage(ARichEdit.Handle, WM_SETREDRAW, 0, 0);
+  EventMask := SendMessage(ARichEdit.Handle, WM_USER + 69, 0, 0);
+end;
+
+procedure RepaintRichEdit(var ARichEdit: TRichEdit; var EventMask: Integer);
+begin
+  SendMessage(ARichEdit.Handle, WM_SETREDRAW, 1, 0);
+  InvalidateRect(ARichEdit.Handle, nil, True);
+  SendMessage(ARichEdit.Handle, WM_USER + 69, 0, EventMask);
+  ARichEdit.DoubleBuffered := False;
+  ARichEdit.Repaint;
+end;
+
+procedure SaveSelects(var ARichEdit: TRichEdit; var SelStart, SelLen: Integer);
+begin
+  SelStart := ARichEdit.SelStart;
+  SelLen := ARichEdit.SelLength;
+end;
+
+procedure LoadSelects(var ARichEdit: TRichEdit; var SelStart, SelLen: Integer);
+begin
+  ARichEdit.SelStart := SelStart;
+  ARichEdit.SelLength := SelLen;
+end;
+
+procedure SaveScrolls(var ARichEdit: TRichEdit; var ScrollInfoH,
+  ScrollInfoV: tagSCROLLINFO);
+begin
+  FillChar(ScrollInfoV, SizeOf(ScrollInfoV), 0);
+  ScrollInfoV.cbSize := SizeOf(ScrollInfoV);
+  ScrollInfoV.fMask := SIF_POS;
+
+  FillChar(ScrollInfoH, SizeOf(ScrollInfoH), 0);
+  ScrollInfoH.cbSize := SizeOf(ScrollInfoH);
+  ScrollInfoH.fMask := SIF_POS;
+
+  GetScrollInfo(ARichEdit.Handle, SB_VERT, ScrollInfoV);
+  GetScrollInfo(ARichEdit.Handle, SB_HORZ, ScrollInfoH);
+end;
+
+procedure LoadScrolls(var ARichEdit: TRichEdit; var ScrollInfoH,
+  ScrollInfoV: tagSCROLLINFO);
+begin
+  ARichEdit.Perform(WM_VSCROLL, SB_THUMBPOSITION +
+    ScrollInfoV.nPos * 65536, 0);
+  ARichEdit.Perform(WM_HSCROLL, SB_THUMBPOSITION +
+    ScrollInfoH.nPos * 65536, 0);
+end;
+
+procedure FillMemoryRichEdit(var ARichEditMain, ARichEditCopy: TRichEdit);
+var
+  MemoryStream: TMemoryStream;
+begin
+  MemoryStream := TMemoryStream.Create;
+  ARichEditMain.PlainText := True;
+  ARichEditCopy.PlainText := True;
+  try
+    ARichEditMain.Lines.SaveToStream(MemoryStream);
+    MemoryStream.Seek(0, soFromBeginning);
+    ARichEditCopy.Lines.LoadFromStream(MemoryStream);
+  finally
+    MemoryStream.Free;
+  end;
+end;
+
+procedure FillMainRichEdit(var ARichEditMain, ARichEditCopy: TRichEdit);
+var
+  MemoryStream: TMemoryStream;
+begin
+  MemoryStream := TMemoryStream.Create;
+  ARichEditCopy.PlainText := False;
+  ARichEditMain.PlainText := False;
+  try
+    ARichEditCopy.Lines.SaveToStream(MemoryStream);
+    MemoryStream.Seek(0, soFromBeginning);
+    ARichEditMain.Lines.LoadFromStream(MemoryStream);
+  finally
+    MemoryStream.Free;
+    ARichEditCopy.Free;
+  end;
+end;
+
+
+procedure Highlight(var ASyntaxList: TSyntaxList; const ASyntaxName: string;
+  var ARichEditMain, ARichEditCopy: TRichEdit);
 const
   Delimiters: string = ' ,(){}[]-+*%/=~!&|<>?:;.' + #$D#$A;
 
+{ Delimiters - символы, около которых могут быть зарезервированные слова }
+
 var
-  i, n: integer;
-  linesCount: integer;
-  isMultComment, isInsideStr1, isInsideStr2: boolean;
-  mCommentStart, insideStr1, insideStr2, eventMask: integer;
-  possibleRWord, textCopy: string;
-  textLen, sStart, sLen: integer;
-  isHightlightPossible: boolean;
-  mStream: TMemoryStream;
-  scInfoH, scInfoV: tagSCROLLINFO;
-  syntaxInfo: TSyntaxInfo;
-  rWords: TReserved;
-  sLineComment: string[2];
-  mLineComment: TMLineComment;
-  testStr: string;
+  i, n: Integer;
+  LinesCount: Integer;
+  IsMLineComment, IsInsideStr1, IsInsideStr2: Boolean;
+  MCommentStart, InsideStrPos1, InsideStrPos2: Integer;
+  EventMask: Integer;
+  PossibleRWord, TextCopy: string;
+  TextLen, SavedSelStart, SavedSelLen: Integer;
+  IsHightlightPossible: Boolean;
+  MemoryStream: TMemoryStream;
+  ScrollInfoH, ScrollInfoV: tagSCROLLINFO;
+  PSyntax: PSyntaxInfo;
+  ReservedWords: TReserved;
+  SLineComment: string[2];
+  MLineComment: TMLineComment;
 
 begin
-  syntaxInfo := SyntaxList[fileName]^;
+  // Отключение перерисовки RichEdit на форме, сохранение всего нужного
+  RepaintOff(ARichEditMain, EventMask);
+  SaveSelects(ARichEditMain, SavedSelStart, SavedSelLen);
+  SaveScrolls(ARichEditMain, ScrollInfoH, ScrollInfoV);
+  FillMemoryRichEdit(ARichEditMain, ARichEditCopy);
 
-  rWords := syntaxInfo.ReservedWords;
-  sLineComment := syntaxInfo.SingleLineComment;
-  mLineComment := syntaxInfo.MultiLineComment;
+  PSyntax := ASyntaxList[ASyntaxName];
 
-  // Запоминаем что было выделено до этого
-  sStart := RichEdit.SelStart;
-  sLen := RichEdit.SelLength;
+  ReservedWords := PSyntax^.ReservedWords;
+  SLineComment := PSyntax^.SingleLineComment;
+  MLineComment := PSyntax^.MultiLineComment;
 
-  // Флажки чтобы не находить в комментариях зарезервированные слова и т.д.
-  isMultComment := false;
-  isInsideStr1 := false;
-  isInsideStr2 := false;
+  // Флажки чтобы не находить в комментариях/строках зарезервированные слова
+  IsMLineComment := False;
+  IsInsideStr1 := False;
+  IsInsideStr2 := False;
 
-  linesCount := 0;
+  { Считаем количество строк т.к. в RichEdit 2.0 при окрашивании
+    не учитывается символ \r (#$D), из-за чего текст окрашивается не полностью }
+  LinesCount := 0;
 
-  mCommentStart := -1;
-  insideStr1 := -1;
-  insideStr2 := -1;
+  MCommentStart := -1;
+  InsideStrPos1 := -1;
+  InsideStrPos2 := -1;
 
-  // Блокировка перерисовки
-  RichEdit.DoubleBuffered := true;
-  SendMessage(RichEdit.Handle, WM_SETREDRAW, 0, 0);
-  eventMask := SendMessage(RichEdit.Handle, WM_USER + 69, 0, 0);
+  // Чистка предыдущей подсветки
+  ARichEditCopy.SelStart := 0;
+  ARichEditCopy.SelLength := Length(ARichEditCopy.Text);
+  ARichEditCopy.SelAttributes := ARichEditMain.DefAttributes;
+  ARichEditCopy.SelAttributes.Color := clBlack;
+  ARichEditCopy.SelAttributes.Style := [];
 
-  // Копируем в память RichEdit
-  mStream := TMemoryStream.Create;
-  RichEdit.PlainText := true;
-  RECopy.PlainText := true;
-  try
-    RichEdit.Lines.SaveToStream(mStream);
-    mStream.Seek(0, soFromBeginning);
-    RECopy.Lines.LoadFromStream(mStream);
-  finally
-    mStream.Free;
-  end;
+  TextCopy := ARichEditCopy.Text + #$A;
+  TextLen := length(TextCopy);
 
-  // Сохранение полос прокрутки RichEdit
-  FillChar(scInfoV, sizeof(scInfoV), 0);
-  scInfoV.cbSize := sizeof(scInfoV);
-  scInfoV.fMask := SIF_POS;
+  // Проход по всему тексту
+  i := 0;
+  while (i <= TextLen) do
+  begin
+    i := i + 1;
 
-  FillChar(scInfoH, sizeof(scInfoH), 0);
-  scInfoH.cbSize := sizeof(scInfoH);
-  scInfoH.fMask := SIF_POS;
+    if TextCopy[i] = #$D then
+      Inc(LinesCount);
 
-  GetScrollInfo(RichEdit.Handle, SB_VERT, scInfoV);
-  GetScrollInfo(RichEdit.Handle, SB_HORZ, scInfoH);
-
-  // Непосредственно подсветка синтаксиса
-  try
-    // Чистка предыдущей подсветки
-    RECopy.SelStart := 0;
-    RECopy.SelLength := length(RECopy.Text);
-    RECopy.SelAttributes := RichEdit.DefAttributes;
-    RECopy.SelAttributes.Color := clBlack;
-    RECopy.SelAttributes.Style := [];
-
-    i := 0;
-    // Копирование текста в textCopy
-    textCopy := RECopy.Text + #$A;
-    textLen := length(textCopy);
-
-    // Перебор текста
-    while (i <= textLen) do
+    // Закрывающая одиночная кавычка (окрашивание)
+    if IsInsideStr1 and (TextCopy[i] = '''') then
     begin
-      i := i + 1;
+      ARichEditCopy.SelStart := InsideStrPos1 - LinesCount;
+      ARichEditCopy.SelLength := i - InsideStrPos1;
+      ARichEditCopy.SelAttributes.Color := clGreen;
+      IsInsideStr1 := False;
+      Continue;
+    end;
 
-      if textCopy[i] = #$D then
-        inc(linesCount);
+    // Закрывающая двойная кавычка (окрашивание)
+    if IsInsideStr2 and (TextCopy[i] = '"') then
+    begin
+      ARichEditCopy.SelStart := InsideStrPos2 - LinesCount;
+      ARichEditCopy.SelLength := i - InsideStrPos2;
+      ARichEditCopy.SelAttributes.Color := clGreen;
+      IsInsideStr2 := False;
+      Continue;
+    end;
 
-      // Нашли одиночную кавычку и до этого нашли еще одну
-      // красим от первой кавычки до найденной в зелёный
-      if isInsideStr1 and (textCopy[i] = '''') then
+    // Конец многострочного комментария (окрашивание)
+    if i < TextLen then
+      if IsMLineComment and
+        (Copy(TextCopy, i, Length(MLineComment[2])) = MLineComment[2]) then
       begin
-        RECopy.SelStart := insideStr1 - linesCount;
-        RECopy.SelLength := i - insideStr1;
-        RECopy.SelAttributes.Color := clGreen;
-        isInsideStr1 := false;
-        continue;
+        ARichEditCopy.SelStart := MCommentStart - LinesCount;
+        ARichEditCopy.SelLength := i - MCommentStart + 1;
+        ARichEditCopy.SelAttributes.Color := clGreen;
+        IsMLineComment := False;
+        inc(i);
+        Continue;
       end;
 
-      // Нашли двойную кавычку и до этого нашли еще одну
-      // красим от первой кавычки до найденной в зелёный
-      if isInsideStr2 and (textCopy[i] = '"') then
+    if (not IsMLineComment) and (not IsInsideStr1) and (not IsInsideStr2) then
+    begin
+      // Открывающая одиночная кавычка
+      if TextCopy[i] = '''' then
       begin
-        RECopy.SelStart := insideStr2 - linesCount;
-        RECopy.SelLength := i - insideStr2;
-        RECopy.SelAttributes.Color := clGreen;
-        isInsideStr2 := false;
-        continue;
+        IsInsideStr1 := True;
+        InsideStrPos1 := i - 1;
+        Continue;
       end;
 
-      // Закрашиваем многострочный комментарий
-      if i < textLen then
-        if isMultComment and
-          (Copy(textCopy, i, Length(mLineComment[2])) = mLineComment[2]) then
-        begin
-          RECopy.SelStart := mCommentStart - linesCount;
-          RECopy.SelLength := i - mCommentStart + 1;
-          RECopy.SelAttributes.Color := clGreen;
-          testStr := RECopy.SelText;
-          isMultComment := false;
-          inc(i);
-          continue;
-        end;
-
-      // Поиск зарезервированных слов вне комментариев и строк
-      if (not isMultComment) and (not isInsideStr1) and (not isInsideStr2) then
+      // Открывающая двойная кавычка
+      if TextCopy[i] = '"' then
       begin
-        // одиночная кавычка
-        if textCopy[i] = '''' then
-        begin
-          isInsideStr1 := true;
-          insideStr1 := i - 1;
-          continue;
-        end;
-
-        // двойная кавычка
-        if textCopy[i] = '"' then
-        begin
-          isInsideStr2 := true;
-          insideStr2 := i - 1;
-          continue;
-        end;
-
-        // Закрашиваем однострочный комментарий
-        if i < textLen then
-        begin
-          if (Copy(textCopy, i, Length(sLineComment)) = sLineComment) then
-          begin
-            RECopy.SelStart := i - 1 - linesCount;
-            RECopy.SelLength := PosEx(#$D, textCopy, i) - i;
-            RECopy.SelAttributes.Color := clGreen;
-            testStr := RECopy.SelText;
-            i := PosEx(#$D, textCopy, i) - 1;
-            continue;
-          end;
-        end;
-
-        // Если символ начала многострочного комментария
-        if i < textLen then
-          if Copy(textCopy, i, Length(mLineComment[1])) = mLineComment[1] then
-          begin
-            isMultComment := true;
-            mCommentStart := i - 1;
-            inc(i);
-            continue;
-          end;
-
-        // Поиск зарезервированного слова
-        // (13 = самое длинное зар. слово + 1 для символа из Delimiters)
-        possibleRWord := copy(textCopy, i, 13);
-
-        // Если это конец текста - то добавим в конец пробел
-        if length(possibleRWord) < 13 then
-          possibleRWord := possibleRWord + ' ';
-
-        isHightlightPossible := false;
-
-        // Если начало текста - ищем зарезервированное слово
-        if i = 1 then
-          isHightlightPossible := true;
-
-        // Если не начало, но перед символом есть разделитель - также ищем
-        if (i > 1) then
-          if Pos(textCopy[i - 1], Delimiters) > 0 then
-            isHightlightPossible := true;
-
-        if isHightlightPossible then
-          for n := 1 to length(rWords) do
-            if Length(rWords[n]) <> 0 then
-              // Если слово найдено
-              if (Pos(rWords[n], possibleRWord) = 1) and
-                (length(possibleRWord) > length(rWords[n])) then
-                // и если за ним идет разделитель
-                if Pos(possibleRWord[length(rWords[n]) + 1], Delimiters) > 0 then
-                begin
-                  // то красим его в синий и делаем жирным
-                  RECopy.SelStart := i - 1 - linesCount;
-                  RECopy.SelLength := length(rWords[n]);
-                  RECopy.SelAttributes.Color := clBlue;
-                  RECopy.SelAttributes.Style := [fsBold];
-                  i := i + length(rWords[n]) - 1;
-                  continue;
-                end;
+        IsInsideStr2 := True;
+        InsideStrPos2 := i - 1;
+        Continue;
       end;
-    end;
 
-    // Проверяем, есть ли рваные выделения
-    // Тогда просто красим текст до самого конца
-    i := textLen - 1;
-    if isInsideStr1 then
-    begin
-      RECopy.SelStart := insideStr1 - linesCount;
-      RECopy.SelLength := i - insideStr1;
-      RECopy.SelAttributes.Color := clGreen;
-    end;
+      // Однострочный комментарий (окрашивание до конца строки)
+      if i < TextLen then
+      begin
+        if (Copy(TextCopy, i, Length(SLineComment)) = SLineComment) then
+        begin
+          ARichEditCopy.SelStart := i - 1 - LinesCount;
+          ARichEditCopy.SelLength := PosEx(#$D, TextCopy, i) - i;
+          ARichEditCopy.SelAttributes.Color := clGreen;
+          i := PosEx(#$D, TextCopy, i) - 1;
+          Continue;
+        end;
+      end;
 
-    if isInsideStr2 then
-    begin
-      RECopy.SelStart := insideStr2 - linesCount;
-      RECopy.SelLength := i - insideStr2;
-      RECopy.SelAttributes.Color := clGreen;
-    end;
+      // Начало многострочного комментария
+      if i < TextLen then
+        if Copy(TextCopy, i, Length(MLineComment[1])) = MLineComment[1] then
+        begin
+          IsMLineComment := True;
+          MCommentStart := i - 1;
+          Inc(i);
+          Continue;
+        end;
 
-    if isMultComment then
-    begin
-      RECopy.SelStart := mCommentStart - linesCount;
-      RECopy.SelLength := i - mCommentStart;
-      RECopy.SelAttributes.Color := clGreen;
+      { Поиск зарезервированного слова.
+        15 = самое длинное возможное зар. слово + 1 для символа из Delimiters }
+      PossibleRWord := Copy(TextCopy, i, 16);
+
+      // Если это конец текста - добавление пробела для возможности выделения
+      if length(PossibleRWord) < 16 then
+        PossibleRWord := PossibleRWord + ' ';
+
+      IsHightlightPossible := False;
+
+      // Если начало текста
+      if i = 1 then
+        IsHightlightPossible := True;
+
+      // Если перед словом есть разделитель
+      if (i > 1) then
+        if Pos(TextCopy[i - 1], Delimiters) > 0 then
+          IsHightlightPossible := True;
+
+      if IsHightlightPossible then
+        for n := 1 to Length(ReservedWords) do
+          if Length(ReservedWords[n]) <> 0 then
+            // Если зарезервированное слово найдено...
+            if (Pos(ReservedWords[n], PossibleRWord) = 1) and
+              (Length(PossibleRWord) > Length(ReservedWords[n])) then
+
+              // ... и если за ним идет разделитель ...
+              if Pos(PossibleRWord[Length(ReservedWords[n]) + 1], Delimiters) > 0 then
+              begin
+                // ... то окрашивание слова
+                ARichEditCopy.SelStart := i - 1 - LinesCount;
+                ARichEditCopy.SelLength := Length(ReservedWords[n]);
+                ARichEditCopy.SelAttributes.Color := clBlue;
+                ARichEditCopy.SelAttributes.Style := [fsBold];
+                i := i + Length(ReservedWords[n]) - 1;
+                Continue;
+              end;
     end;
-  except
   end;
 
-  // Копируем из памяти на RichEdit формы
-  mStream := TMemoryStream.Create;
-  RECopy.PlainText := false;
-  RichEdit.PlainText := false;
-  try
-    RECopy.Lines.SaveToStream(mStream);
-    mStream.Seek(0, soFromBeginning);
-    RichEdit.Lines.LoadFromStream(mStream);
-  finally
-    mStream.Free;
+  // Проверки на "рваные" выделения (комментарий/строка до конца текста)
+  i := TextLen - 1;
+  if IsInsideStr1 then
+  begin
+    ARichEditCopy.SelStart := InsideStrPos1 - LinesCount;
+    ARichEditCopy.SelLength := i - InsideStrPos1;
+    ARichEditCopy.SelAttributes.Color := clGreen;
+  end;
+  if IsInsideStr2 then
+  begin
+    ARichEditCopy.SelStart := InsideStrPos2 - LinesCount;
+    ARichEditCopy.SelLength := i - InsideStrPos2;
+    ARichEditCopy.SelAttributes.Color := clGreen;
+  end;
+  if IsMLineComment then
+  begin
+    ARichEditCopy.SelStart := MCommentStart - LinesCount;
+    ARichEditCopy.SelLength := i - MCommentStart;
+    ARichEditCopy.SelAttributes.Color := clGreen;
   end;
 
-  // Восстанавливаем позиции скроллов
-  RichEdit.Perform(WM_VSCROLL, SB_THUMBPOSITION + scInfoV.nPos * 65536, 0);
-  RichEdit.Perform(WM_HSCROLL, SB_THUMBPOSITION + scInfoH.nPos * 65536, 0);
-
-  // Освобождаем память скопированного RichEdit
-  RECopy.Free;
-
-  // Cтавим курсор и выделение в начальное место
-  RichEdit.SelStart := sStart;
-  RichEdit.SelLength := sLen;
-
-  // Включаем перерисовку обратно и перерисовываем RichEdit
-  SendMessage(RichEdit.Handle, WM_SETREDRAW, 1, 0);
-  InvalidateRect(RichEdit.Handle, nil, true);
-  SendMessage(RichEdit.Handle, WM_USER + 69, 0, eventMask);
-  RichEdit.DoubleBuffered := false;
-  RichEdit.Repaint;
+  // Восстановление всего нужного, перерисовка RichEdit на форме
+  FillMainRichEdit(ARichEditMain, ARichEditCopy);
+  LoadScrolls(ARichEditMain, ScrollInfoH, ScrollInfoV);
+  LoadSelects(ARichEditMain, SavedSelStart, SavedSelLen);
+  RepaintRichEdit(ARichEditMain, EventMask);
 end;
 
 End.
