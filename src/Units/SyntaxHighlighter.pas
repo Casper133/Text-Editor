@@ -3,28 +3,14 @@
 Interface
 
 Uses
-  SyntaxFilesGenerator, Winapi.Windows, Winapi.Messages, System.Classes,
-  Vcl.Graphics, Vcl.ComCtrls, StrUtils, SysUtils, RegularExpressions;
+  Winapi.Windows, Winapi.Messages, Vcl.Graphics, Vcl.ComCtrls, Classes,
+  StrUtils, SyntaxFiles;
 
-Function LoadSyntaxFile(const fileName: string): TSyntaxInfo;
-Procedure Highlight(projectDir, fileName: string; var RichEdit, RECopy: TRichEdit);
-Function checkFileForCode(const filePath: string): string;
+Procedure Highlight(var SyntaxList: TSyntaxList; fileName: string; var RichEdit, RECopy: TRichEdit);
 
 Implementation
 
-Function LoadSyntaxFile(const fileName: string): TSyntaxInfo;
-var
-  syntaxFile: file of TSyntaxInfo;
-
-begin
-  AssignFile(syntaxFile, fileName);
-  Reset(syntaxFile);
-  Read(syntaxFile, Result);
-  CloseFile(syntaxFile);
-end;
-
-
-Procedure Highlight(projectDir, fileName: string; var RichEdit, RECopy: TRichEdit);
+Procedure Highlight(var SyntaxList: TSyntaxList; fileName: string; var RichEdit, RECopy: TRichEdit);
 // Разделители - символы, около которых могут быть зарезервированные слова
 const
   Delimiters: string = ' ,(){}[]-+*%/=~!&|<>?:;.' + #$D#$A;
@@ -46,7 +32,7 @@ var
   testStr: string;
 
 begin
-  syntaxInfo := LoadSyntaxFile(projectDir + '\syntaxes\' + fileName);
+  syntaxInfo := SyntaxList[fileName]^;
 
   rWords := syntaxInfo.ReservedWords;
   sLineComment := syntaxInfo.SingleLineComment;
@@ -291,38 +277,6 @@ begin
   SendMessage(RichEdit.Handle, WM_USER + 69, 0, eventMask);
   RichEdit.DoubleBuffered := false;
   RichEdit.Repaint;
-end;
-
-
-Function checkFileForCode(const filePath: string): string;
-const
-  pattern: string = '\..+$';
-var
-  fileExtension: string;
-begin
-  fileExtension := AnsiLowerCase(TRegEx.Match(filePath, pattern).Value);
-
-  if Length(fileExtension) <> 0 then
-    if fileExtension = '.c' then
-      Result := 'C.syntax'
-    else if fileExtension = '.cpp' then
-      Result := 'C++.syntax'
-    else if fileExtension = '.cs' then
-      Result := 'C#.syntax'
-    else if fileExtension = '.go' then
-      Result := 'Go.syntax'
-    else if fileExtension = '.java' then
-      Result := 'Java.syntax'
-    else if fileExtension = '.js' then
-      Result := 'JS.syntax'
-    else if fileExtension = '.kt' then
-      Result := 'Kotlin.syntax'
-    else if fileExtension = '.py' then
-      Result := 'Python.syntax'
-    else
-      Result := ''
-  else
-    Result := '';
 end;
 
 End.

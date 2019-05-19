@@ -3,10 +3,9 @@
 Interface
 
 Uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  System.Actions, Vcl.ActnList, Vcl.Menus, Vcl.StdCtrls, Vcl.ComCtrls,
-  Vcl.ExtDlgs, Vcl.ExtCtrls, SyntaxHighlighter;
+  Winapi.Windows, Winapi.Messages, Vcl.Controls, Vcl.StdCtrls, Vcl.Forms,
+  Vcl.Dialogs, Vcl.ActnList, Vcl.Menus, Vcl.ComCtrls, Vcl.ExtDlgs, Vcl.ExtCtrls,
+  Classes, Actions, SysUtils, SyntaxFiles, SyntaxHighlighter, SyntaxEditor;
 
 Type
   TMainForm = class(TForm)
@@ -17,7 +16,7 @@ Type
     mOpen: TMenuItem;
     mSave: TMenuItem;
     mSaveAs: TMenuItem;
-    Separator1: TMenuItem;
+    mSeparator1: TMenuItem;
     mExit: TMenuItem;
     mEdit: TMenuItem;
     mUndo: TMenuItem;
@@ -27,21 +26,15 @@ Type
     mPaste: TMenuItem;
     mDelete: TMenuItem;
     mSelectAll: TMenuItem;
-    Separator2: TMenuItem;
+    mSeparator2: TMenuItem;
     mInsertIndent: TMenuItem;
     mDeleteIndent: TMenuItem;
     mSearch: TMenuItem;
     mFind: TMenuItem;
     mReplace: TMenuItem;
     mSyntaxes: TMenuItem;
-    mCLang: TMenuItem;
-    mCPlusPlus: TMenuItem;
-    mCSharp: TMenuItem;
-    mGoLang: TMenuItem;
-    mJava: TMenuItem;
-    mJavaScript: TMenuItem;
-    mKotlin: TMenuItem;
-    mPython: TMenuItem;
+    mSyntaxMenu: TMenuItem;
+    mSeparator3: TMenuItem;
     mAbout: TMenuItem;
     mAboutProgram: TMenuItem;
     aList: TActionList;
@@ -61,14 +54,7 @@ Type
     aDeleteIndent: TAction;
     aFind: TAction;
     aReplace: TAction;
-    aCLang: TAction;
-    aCPlusPlus: TAction;
-    aCSharp: TAction;
-    aGoLang: TAction;
-    aJava: TAction;
-    aJavaScript: TAction;
-    aKotlin: TAction;
-    aPython: TAction;
+    aSyntaxMenu: TAction;
     aAboutProgram: TAction;
     fOpenDialog: TOpenTextFileDialog;
     fSaveDialog: TSaveTextFileDialog;
@@ -77,6 +63,7 @@ Type
     syntaxTimer: TTimer;
 
     procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
 
     procedure aNewFileExecute(Sender: TObject);
     procedure aOpenFileExecute(Sender: TObject);
@@ -97,23 +84,19 @@ Type
     procedure aFindExecute(Sender: TObject);
     procedure FindDialogFind(Sender: TObject);
     procedure aReplaceExecute(Sender: TObject);
+    procedure ReplaceDialogFind(Sender: TObject);
+    procedure ReplaceDialogReplace(Sender: TObject);
+
+    procedure aSyntaxMenuExecute(Sender: TObject);
+    procedure onSyntaxClick(Sender: TObject);
 
     procedure RichEditChange(Sender: TObject);
     procedure onSyntaxTimer(Sender: TObject);
-
-    procedure aCLangExecute(Sender: TObject);
-    procedure aCPlusPlusExecute(Sender: TObject);
-    procedure aCSharpExecute(Sender: TObject);
-    procedure aGoLangExecute(Sender: TObject);
-    procedure aJavaExecute(Sender: TObject);
-    procedure aJavaScriptExecute(Sender: TObject);
-    procedure aKotlinExecute(Sender: TObject);
-    procedure aPythonExecute(Sender: TObject);
-    procedure ReplaceDialogFind(Sender: TObject);
-    procedure ReplaceDialogReplace(Sender: TObject);
   private
-    syntaxFileName: string;
-    projectDir: string;
+    SyntaxFileName: string;
+    SyntaxPath: string;
+    SyntaxList: TSyntaxList;
+    FmSyntaxEditor: TFmSyntaxEditor;
   end;
 
 Var
@@ -124,8 +107,34 @@ Implementation
 {$R *.dfm}
 
 procedure TMainForm.FormCreate(Sender: TObject);
+var
+  SyntaxDir: string;
+  Languages: TLangNames;
+  i: integer;
+  MenuItem: TMenuItem;
 begin
-  projectDir := GetCurrentDir;
+  SyntaxDir := '\syntaxes';
+  Self.SyntaxPath := GetCurrentDir + SyntaxDir;
+  Self.SyntaxList := TSyntaxList.create(Self.SyntaxPath);
+
+  if not DirectoryExists(Self.SyntaxPath) then
+    Self.SyntaxList.createDefaultSyntaxes();
+
+  Self.SyntaxList.LoadExistingSyntaxFiles();
+
+  Languages := Self.SyntaxList.GetAllLanguages();
+  for i := 0 to Self.SyntaxList.Count - 1 do
+  begin
+    MenuItem := TMenuItem.Create(Self);
+    MenuItem.Caption := Languages[i];
+    MenuItem.OnClick := Self.onSyntaxClick;
+    Self.mSyntaxes.Insert(i + 2, MenuItem);
+  end;
+end;
+
+procedure TMainForm.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Self.SyntaxList.SaveSyntaxFiles();
 end;
 
 
@@ -146,11 +155,11 @@ begin
     if Execute then
     begin
       Lines.LoadFromFile(FileName);
-      syntaxFileName := checkFileForCode(FileName);
-      if Length(syntaxFileName) <> 0 then
+      Self.SyntaxFileName := Self.SyntaxList.CheckFileForCode(FileName);
+      if Length(SyntaxFileName) <> 0 then
       begin
         RECopy := TRichEdit.CreateParented(Self.Handle);
-        Highlight(projectDir, syntaxFileName, RichEdit, RECopy);
+        Highlight(Self.SyntaxList, Self.SyntaxFileName, Self.RichEdit, RECopy);
       end;
     end;
 end;
@@ -361,9 +370,32 @@ begin
 end;
 
 
+procedure TMainForm.aSyntaxMenuExecute(Sender: TObject);
+begin
+  if not Assigned(Self.FmSyntaxEditor) then
+  begin
+    Self.FmSyntaxEditor := TFmSyntaxEditor.Create(Self);
+    Self.FmSyntaxEditor.SyntaxList := Self.SyntaxList;
+    Self.FmSyntaxEditor.SyntaxTab := Self.mSyntaxes;
+  end;
+
+  Self.FmSyntaxEditor.ShowModal;
+end;
+
+procedure TMainForm.onSyntaxClick(Sender: TObject);
+var
+  RECopy: TRichEdit;
+begin
+  RECopy := TRichEdit.CreateParented(Self.Handle);
+  Self.SyntaxFileName := TMenuItem(Sender).Caption;
+  Delete(Self.SyntaxFileName, 1, 1);
+  Highlight(Self.SyntaxList, Self.SyntaxFileName, Self.RichEdit, RECopy);
+end;
+
+
 procedure TMainForm.RichEditChange(Sender: TObject);
 begin
-  if syntaxFileName <> '' then
+  if SyntaxFileName <> '' then
     syntaxTimer.Enabled := true;
 end;
 
@@ -375,81 +407,8 @@ begin
   begin
     RECopy := TRichEdit.CreateParented(Self.Handle);
     syntaxTimer.Enabled := false;
-    Highlight(projectDir, syntaxFileName, RichEdit, RECopy);
+    Highlight(Self.SyntaxList, Self.SyntaxFileName, Self.RichEdit, RECopy);
   end;
-end;
-
-
-procedure TMainForm.aCLangExecute(Sender: TObject);
-var
-  RECopy: TRichEdit;
-begin
-  RECopy := TRichEdit.CreateParented(Self.Handle);
-  syntaxFileName := 'C.syntax';
-  Highlight(projectDir, syntaxFileName, RichEdit, RECopy);
-end;
-
-procedure TMainForm.aCPlusPlusExecute(Sender: TObject);
-var
-  RECopy: TRichEdit;
-begin
-  RECopy := TRichEdit.CreateParented(Self.Handle);
-  syntaxFileName := 'C++.syntax';
-  Highlight(projectDir, syntaxFileName, RichEdit, RECopy);
-end;
-
-procedure TMainForm.aCSharpExecute(Sender: TObject);
-var
-  RECopy: TRichEdit;
-begin
-  RECopy := TRichEdit.CreateParented(Self.Handle);
-  syntaxFileName := 'C#.syntax';
-  Highlight(projectDir, syntaxFileName, RichEdit, RECopy);
-end;
-
-procedure TMainForm.aGoLangExecute(Sender: TObject);
-var
-  RECopy: TRichEdit;
-begin
-  RECopy := TRichEdit.CreateParented(Self.Handle);
-  syntaxFileName := 'Go.syntax';
-  Highlight(projectDir, syntaxFileName, RichEdit, RECopy);
-end;
-
-procedure TMainForm.aJavaExecute(Sender: TObject);
-var
-  RECopy: TRichEdit;
-begin
-  RECopy := TRichEdit.CreateParented(Self.Handle);
-  syntaxFileName := 'Java.syntax';
-  Highlight(projectDir, syntaxFileName, RichEdit, RECopy);
-end;
-
-procedure TMainForm.aJavaScriptExecute(Sender: TObject);
-var
-  RECopy: TRichEdit;
-begin
-  RECopy := TRichEdit.CreateParented(Self.Handle);
-  syntaxFileName := 'JS.syntax';
-  Highlight(projectDir, syntaxFileName, RichEdit, RECopy);
-end;
-
-procedure TMainForm.aKotlinExecute(Sender: TObject);
-var
-  RECopy: TRichEdit;
-begin
-  RECopy := TRichEdit.CreateParented(Self.Handle);
-  syntaxFileName := 'Kotlin.syntax';
-  Highlight(projectDir, syntaxFileName, RichEdit, RECopy);
-end;
-
-procedure TMainForm.aPythonExecute(Sender: TObject);
-var
-  RECopy: TRichEdit;
-begin
-  RECopy := TRichEdit.CreateParented(Self.Handle);
-  syntaxFileName := 'Python.syntax';
-  Highlight(projectDir, syntaxFileName, RichEdit, RECopy);
 end;
 
 end.
