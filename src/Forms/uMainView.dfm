@@ -2473,6 +2473,7 @@ object FmMain: TFmMain
     object actAboutProgram: TAction
       Category = 'acAbout'
       Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077'...'
+      OnExecute = actAboutProgramExecute
     end
     object actSyntaxMenu: TAction
       Category = 'acSyntax'

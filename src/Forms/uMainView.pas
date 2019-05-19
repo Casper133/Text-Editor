@@ -105,6 +105,8 @@ type
     procedure actSyntaxMenuExecute(Sender: TObject);
     procedure onSyntaxClick(Sender: TObject);
 
+    procedure actAboutProgramExecute(Sender: TObject);
+
     procedure RichEditChange(Sender: TObject);
     procedure onSyntaxTimer(Sender: TObject);
   private
@@ -407,6 +409,13 @@ begin
   Self.SyntaxName := TMenuItem(Sender).Caption;
   Delete(Self.SyntaxName, 1, 1);
   Highlight(Self.SyntaxList, Self.SyntaxName, Self.RichEdit, RECopy);
+end;
+
+
+procedure TFmMain.actAboutProgramExecute(Sender: TObject);
+begin
+  ShowMessage('Текстовый редактор с подсветкой синтаксиса' + sLineBreak +
+    'GitHub: Casper133/text-editor' + sLineBreak + 'Текущая версия: 1.0');
 end;
 
 
