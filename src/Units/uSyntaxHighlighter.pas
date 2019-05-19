@@ -1,10 +1,10 @@
-﻿Unit SyntaxHighlighter;
+﻿Unit uSyntaxHighlighter;
 
 Interface
 
 Uses
   Winapi.Windows, Winapi.Messages, Vcl.Graphics, Vcl.ComCtrls, Classes,
-  StrUtils, SyntaxFiles;
+  StrUtils, uSyntaxEntity;
 
 Procedure Highlight(var SyntaxList: TSyntaxList; fileName: string; var RichEdit, RECopy: TRichEdit);
 

@@ -98,19 +98,19 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="Units\Main.pas">
+        <DCCReference Include="Forms\Main.pas">
             <Form>MainForm</Form>
         </DCCReference>
-        <DCCReference Include="Units\SyntaxHighlighter.pas"/>
-        <DCCReference Include="Units\SyntaxFiles.pas"/>
-        <DCCReference Include="Units\SyntaxEditor.pas">
+        <DCCReference Include="Forms\SyntaxEditor.pas">
             <Form>FmSyntaxEditor</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="Units\NewSyntaxView.pas">
+        <DCCReference Include="Forms\NewSyntaxView.pas">
             <Form>FmNewSyntax</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="Units\uSyntaxHighlighter.pas">
+            <Form>/uSyntaxFiles in &apos;Units\uSyntaxFiles.pas&apos;;</Form>
+        </DCCReference>
+        <DCCReference Include="Units\uSyntaxEntity.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

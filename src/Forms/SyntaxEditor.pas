@@ -4,7 +4,7 @@ interface
 
 uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Menus, Classes,
-  UITypes, SysUtils, SyntaxFiles, NewSyntaxView;
+  UITypes, SysUtils, uSyntaxEntity, NewSyntaxView;
 
 type
   TFmSyntaxEditor = class(TForm)
@@ -111,7 +111,7 @@ begin
 
     if PSyntax <> nil then
     begin
-      PSyntax^.FileExtension := Self.edtFileExtension.Text;
+      PSyntax^.CodeFileExtension := Self.edtFileExtension.Text;
       PSyntax^.ReservedWords := Self.TransformReservedWords();
       PSyntax^.SingleLineComment := Self.edtSingleLnComment.Text;
       PSyntax^.MultiLineComment[1] := Self.edtMultLnCommentBegin.Text;
@@ -158,7 +158,7 @@ begin
           break;
       end;
 
-      Self.edtFileExtension.Text := FileExtension;
+      Self.edtFileExtension.Text := CodeFileExtension;
       Self.edtSingleLnComment.Text := SingleLineComment;
       Self.edtMultLnCommentBegin.Text := MultiLineComment[1];
       Self.edtMultLnCommentEnd.Text := MultiLineComment[2];
@@ -207,8 +207,8 @@ begin
 
   if btnSelected = mrYes then
   begin
-    Self.FSyntaxList.ClearList();
-    Self.FSyntaxList.createDefaultSyntaxes();
+    Self.FSyntaxList.ClearSyntaxList();
+    Self.FSyntaxList.CreateDefaultSyntaxes();
     Self.FSyntaxList.LoadExistingSyntaxFiles();
     Self.UpdateMenu();
     Self.ClearTextFields();

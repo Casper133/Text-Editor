@@ -5,7 +5,7 @@ Interface
 Uses
   Winapi.Windows, Winapi.Messages, Vcl.Controls, Vcl.StdCtrls, Vcl.Forms,
   Vcl.Dialogs, Vcl.ActnList, Vcl.Menus, Vcl.ComCtrls, Vcl.ExtDlgs, Vcl.ExtCtrls,
-  Classes, Actions, SysUtils, SyntaxFiles, SyntaxHighlighter, SyntaxEditor;
+  Classes, Actions, SysUtils, uSyntaxEntity, uSyntaxHighlighter, SyntaxEditor;
 
 Type
   TMainForm = class(TForm)
@@ -115,10 +115,10 @@ var
 begin
   SyntaxDir := '\syntaxes';
   Self.SyntaxPath := GetCurrentDir + SyntaxDir;
-  Self.SyntaxList := TSyntaxList.create(Self.SyntaxPath);
+  Self.SyntaxList := TSyntaxList.Create(Self.SyntaxPath);
 
   if not DirectoryExists(Self.SyntaxPath) then
-    Self.SyntaxList.createDefaultSyntaxes();
+    Self.SyntaxList.CreateDefaultSyntaxes();
 
   Self.SyntaxList.LoadExistingSyntaxFiles();
 
