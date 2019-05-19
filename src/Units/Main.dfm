@@ -2166,7 +2166,7 @@ object MainForm: TMainForm
       object mSaveAs: TMenuItem
         Action = aSaveAsFile
       end
-      object Separator1: TMenuItem
+      object mSeparator1: TMenuItem
         Caption = '-'
       end
       object mExit: TMenuItem
@@ -2196,7 +2196,7 @@ object MainForm: TMainForm
       object mSelectAll: TMenuItem
         Action = aSelectAll
       end
-      object Separator2: TMenuItem
+      object mSeparator2: TMenuItem
         Caption = '-'
       end
       object mInsertIndent: TMenuItem
@@ -2217,10 +2217,10 @@ object MainForm: TMainForm
     end
     object mSyntaxes: TMenuItem
       Caption = #1057#1080#1085#1090#1072#1082#1089#1080#1089#1099
-      object mSyntaxMenu: TMenuItem
+      object N1: TMenuItem
         Action = aSyntaxMenu
       end
-      object Separator3: TMenuItem
+      object N2: TMenuItem
         Caption = '-'
       end
     end

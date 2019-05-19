@@ -1,11 +1,10 @@
-unit SyntaxEditor;
+п»їunit SyntaxEditor;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.StdCtrls, SyntaxFiles, NewSyntaxView;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Menus, Classes,
+  UITypes, SysUtils, SyntaxFiles, NewSyntaxView;
 
 type
   TFmSyntaxEditor = class(TForm)
@@ -24,18 +23,27 @@ type
     btnSave: TButton;
     btnReset: TButton;
     btnRemove: TButton;
-    procedure cbbSyntaxChange(Sender: TObject);
+
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+
     procedure btnCreateClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnRemoveClick(Sender: TObject);
     procedure btnResetClick(Sender: TObject);
+    procedure cbbSyntaxChange(Sender: TObject);
   private
     FSyntaxList: TSyntaxList;
+    FSyntaxTab: TMenuItem;
     FmNewSyntax: TFmNewSyntax;
     procedure SetSyntaxList(SyntaxList: TSyntaxList);
+    procedure SetSyntaxTab(SyntaxTab: TMenuItem);
+    procedure ClearTextFields();
+    procedure UpdateMenu();
     function TransformReservedWords(): TReserved;
+    procedure RemoveSyntaxFromMenu(const SyntaxName: string);
   public
     property SyntaxList: TSyntaxList Write SetSyntaxList;
+    property SyntaxTab: TMenuItem Write SetSyntaxTab;
   end;
 
 var
@@ -45,17 +53,97 @@ implementation
 
 {$R *.dfm}
 
-{ public/published }
+uses
+  Main;
+
+{ published }
+
+procedure TFmSyntaxEditor.FormClose(Sender: TObject; var Action: TCloseAction);
+var
+  Languages: TLangNames;
+  i: integer;
+  mSyntaxMenu, mSeparator, SyntaxItem: TMenuItem;
+begin
+  Self.FSyntaxTab.Clear;
+
+  mSyntaxMenu := TMenuItem.Create(Self);
+  mSyntaxMenu.Action := Main.MainForm.aSyntaxMenu;
+  mSeparator := TMenuItem.Create(Self);
+  mSeparator.Caption := '-';
+  Self.FSyntaxTab.Insert(0, mSyntaxMenu);
+  Self.FSyntaxTab.Insert(1, mSeparator);
+
+  Languages := Self.FSyntaxList.GetAllLanguages();
+  for i := 0 to Self.FSyntaxList.Count - 1 do
+  begin
+    SyntaxItem := TMenuItem.Create(Self);
+    SyntaxItem.Caption := Languages[i];
+    SyntaxItem.OnClick := Main.MainForm.onSyntaxClick;
+    Self.FSyntaxTab.Insert(i + 2, SyntaxItem);
+  end;
+
+  Self.UpdateMenu();
+  Self.ClearTextFields();
+end;
+
+
+procedure TFmSyntaxEditor.btnCreateClick(Sender: TObject);
+begin
+  if not Assigned(Self.FmNewSyntax) then
+  begin
+    Self.FmNewSyntax := TFmNewSyntax.Create(Self);
+    Self.FmNewSyntax.cbbSyntax := Self.cbbSyntax;
+  end;
+
+  Self.FmNewSyntax.ShowModal;
+end;
+
+procedure TFmSyntaxEditor.btnSaveClick(Sender: TObject);
+var
+  SyntaxName: string;
+  PSyntax: PSyntaxInfo;
+  ReservedWords: TReserved;
+begin
+  SyntaxName := Self.cbbSyntax.Text;
+  if SyntaxName <> '' then
+  begin
+    PSyntax := Self.FSyntaxList[SyntaxName];
+
+    if PSyntax <> nil then
+    begin
+      PSyntax^.FileExtension := Self.edtFileExtension.Text;
+      PSyntax^.ReservedWords := Self.TransformReservedWords();
+      PSyntax^.SingleLineComment := Self.edtSingleLnComment.Text;
+      PSyntax^.MultiLineComment[1] := Self.edtMultLnCommentBegin.Text;
+      PSyntax^.MultiLineComment[2] := Self.edtMultLnCommentEnd.Text;
+    end
+    else
+    begin
+      New(PSyntax);
+      ReservedWords := Self.TransformReservedWords();
+      PSyntax^ := Self.FSyntaxList.CreateSyntaxInfo(
+        Trim(Self.edtFileExtension.Text), ReservedWords,
+        Trim(Self.edtSingleLnComment.Text),
+        Trim(Self.edtMultLnCommentBegin.Text),
+        Trim(Self.edtMultLnCommentEnd.Text));
+      Self.FSyntaxList.AppendSyntax(PSyntax, SyntaxName);
+    end;
+
+    ShowMessage('РЎРёРЅС‚Р°РєСЃРёСЃ СЏР·С‹РєР° ' + SyntaxName + ' СѓСЃРїРµС€РЅРѕ СЃРѕС…СЂР°РЅС‘РЅ!');
+  end
+  else
+    ShowMessage('Р’С‹ РЅРµ РІС‹Р±СЂР°Р»Рё СЏР·С‹Рє РїСЂРѕРіСЂР°РјРјРёСЂРѕРІР°РЅРёСЏ.');
+end;
 
 procedure TFmSyntaxEditor.cbbSyntaxChange(Sender: TObject);
 var
-  FileName: string;
+  SyntaxName: string;
   RWord: string[15];
   PSyntax: PSyntaxInfo;
   i: integer;
 begin
-  FileName := Self.cbbSyntax.Text;
-  PSyntax := Self.FSyntaxList.GetSyntaxByFileName(FileName);
+  SyntaxName := Self.cbbSyntax.Text;
+  PSyntax := Self.FSyntaxList[SyntaxName];
   if PSyntax <> nil then
     with PSyntax^ do
     begin
@@ -85,54 +173,6 @@ begin
   end;
 end;
 
-procedure TFmSyntaxEditor.btnCreateClick(Sender: TObject);
-begin
-  if not Assigned(Self.FmNewSyntax) then
-  begin
-    Self.FmNewSyntax := TFmNewSyntax.Create(Self);
-    Self.FmNewSyntax.cbbSyntax := Self.cbbSyntax;
-  end;
-
-  Self.FmNewSyntax.ShowModal;
-end;
-
-procedure TFmSyntaxEditor.btnSaveClick(Sender: TObject);
-var
-  FileName: string;
-  PSyntax: PSyntaxInfo;
-  ReservedWords: TReserved;
-begin
-  FileName := Self.cbbSyntax.Text;
-  if FileName <> '' then
-  begin
-    PSyntax := Self.FSyntaxList.GetSyntaxByFileName(FileName);
-
-    if PSyntax <> nil then
-    begin
-      PSyntax^.FileExtension := Self.edtFileExtension.Text;
-      PSyntax^.ReservedWords := Self.TransformReservedWords();
-      PSyntax^.SingleLineComment := Self.edtSingleLnComment.Text;
-      PSyntax^.MultiLineComment[1] := Self.edtMultLnCommentBegin.Text;
-      PSyntax^.MultiLineComment[2] := Self.edtMultLnCommentEnd.Text;
-    end
-    else
-    begin
-      New(PSyntax);
-      ReservedWords := Self.TransformReservedWords();
-      PSyntax^ := Self.FSyntaxList.CreateSyntaxInfo(
-        Trim(Self.edtFileExtension.Text), ReservedWords,
-        Trim(Self.edtSingleLnComment.Text),
-        Trim(Self.edtMultLnCommentBegin.Text),
-        Trim(Self.edtMultLnCommentEnd.Text));
-      Self.FSyntaxList.AppendSyntax(PSyntax, FileName);
-    end;
-
-    ShowMessage('Синтаксис языка ' + FileName + ' успешно сохранён!');
-  end
-  else
-    ShowMessage('Вы не выбрали язык программирования');
-end;
-
 procedure TFmSyntaxEditor.btnRemoveClick(Sender: TObject);
 var
   btnSelected: integer;
@@ -141,43 +181,69 @@ begin
   SyntaxName := Self.cbbSyntax.Text;
   if SyntaxName <> '' then
   begin
-    btnSelected := MessageDlg('Вы действительно хотите удалить этот синтаксис?',
+    btnSelected := MessageDlg('Р’С‹ РґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ С…РѕС‚РёС‚Рµ СѓРґР°Р»РёС‚СЊ СЌС‚РѕС‚ СЃРёРЅС‚Р°РєСЃРёСЃ?',
       mtWarning, [mbYes, mbNo], 0);
 
     if btnSelected = mrYes then
     begin
-      Self.FSyntaxList.removeSyntaxByFileName(SyntaxName);
-      ShowMessage('Синтаксис языка ' + SyntaxName + ' успешно удалён');
+      Self.FSyntaxList.RemoveSyntaxByName(SyntaxName);
+      Self.ClearTextFields();
+      Self.RemoveSyntaxFromMenu(SyntaxName);
+      Self.cbbSyntax.Text := '';
+      ShowMessage('РЎРёРЅС‚Р°РєСЃРёСЃ СЏР·С‹РєР° ' + SyntaxName + ' СѓСЃРїРµС€РЅРѕ СѓРґР°Р»С‘РЅ.');
     end;
   end
   else
-    ShowMessage('Вы не выбрали язык программирования');
+    ShowMessage('Р’С‹ РЅРµ РІС‹Р±СЂР°Р»Рё СЏР·С‹Рє РїСЂРѕРіСЂР°РјРјРёСЂРѕРІР°РЅРёСЏ.');
 end;
 
 procedure TFmSyntaxEditor.btnResetClick(Sender: TObject);
 var
   btnSelected: integer;
 begin
-  btnSelected := MessageDlg('Это действие отменит изменения во всех ' +
-    'стандартных синтаксисах. Вы согласны?', mtWarning, [mbYes, mbNo], 0);
+  btnSelected := MessageDlg('Р­С‚Рѕ РґРµР№СЃС‚РІРёРµ РѕС‚РјРµРЅРёС‚ РёР·РјРµРЅРµРЅРёСЏ РІ СЃРёРЅС‚Р°РєСЃРёСЃР°С… ' +
+    'СЃС‚Р°РЅРґР°СЂС‚РЅС‹С… СЏР·С‹РєРѕРІ (C#, C++, C, Go, Java, JavaScript, Kotlin, Python). ' +
+    'Р’С‹ СЃРѕРіР»Р°СЃРЅС‹?', mtWarning, [mbYes, mbNo], 0);
 
   if btnSelected = mrYes then
   begin
-    Self.FSyntaxList.createDefaultSyntaxes();
     Self.FSyntaxList.ClearList();
+    Self.FSyntaxList.createDefaultSyntaxes();
     Self.FSyntaxList.LoadExistingSyntaxFiles();
-    Self.cbbSyntaxChange(Self);
+    Self.UpdateMenu();
+    Self.ClearTextFields();
+    ShowMessage('РќР°СЃС‚СЂРѕР№РєРё СЃС‚Р°РЅРґР°СЂС‚РЅС‹С… СЏР·С‹РєРѕРІ СЃР±СЂРѕС€РµРЅС‹.');
   end;
 end;
 
 { private }
 
 procedure TFmSyntaxEditor.SetSyntaxList(SyntaxList: TSyntaxList);
+begin
+  Self.FSyntaxList := SyntaxList;
+  Self.UpdateMenu();
+end;
+
+procedure TFmSyntaxEditor.SetSyntaxTab(SyntaxTab: TMenuItem);
+begin
+  Self.FSyntaxTab := SyntaxTab;
+end;
+
+procedure TFmSyntaxEditor.ClearTextFields();
+begin
+  Self.edtFileExtension.Text := '';
+  Self.memReservedWords.Text := '';
+  Self.edtSingleLnComment.Text := '';
+  Self.edtMultLnCommentBegin.Text := '';
+  Self.edtMultLnCommentEnd.Text := '';
+end;
+
+procedure TFmSyntaxEditor.UpdateMenu();
 var
   Languages: TLangNames;
   i: integer;
 begin
-  Self.FSyntaxList := SyntaxList;
+  Self.cbbSyntax.Clear;
 
   Languages := Self.FSyntaxList.GetAllLanguages();
   for i := 0 to Self.FSyntaxList.Count - 1 do
@@ -221,6 +287,19 @@ begin
     else
       Result[i] := '';
   end;
+end;
+
+procedure TFmSyntaxEditor.RemoveSyntaxFromMenu(const SyntaxName: string);
+var
+  i, Count: integer;
+begin
+  Count := Self.cbbSyntax.Items.Count;
+  for i := 0 to Count - 1 do
+    if Self.cbbSyntax.Items[i] = SyntaxName then
+    begin
+      Self.cbbSyntax.Items.Delete(i);
+      break;
+    end;
 end;
 
 end.

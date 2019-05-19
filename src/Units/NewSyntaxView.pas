@@ -1,11 +1,9 @@
-unit NewSyntaxView;
+п»їunit NewSyntaxView;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.StdCtrls, SyntaxFiles;
+  Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Controls, Classes, SysUtils;
 
 type
   TFmNewSyntax = class(TForm)
@@ -34,7 +32,6 @@ implementation
 procedure TFmNewSyntax.btnAddClick(Sender: TObject);
 var
   SyntaxName: string;
-  cbbItems: TStrings;
   ItemsCount: integer;
   IsNameExist: boolean;
   i: Integer;
@@ -45,22 +42,23 @@ begin
 
   if SyntaxName <> '' then
   begin
-    cbbItems := Self.FCbbSyntax.Items;
-    ItemsCount := cbbItems.Count;
-    for i := 1 to ItemsCount do
-      if SyntaxName = cbbItems[i] then
+    ItemsCount := Self.FCbbSyntax.Items.Count;
+    for i := 0 to ItemsCount - 1 do
+      if SyntaxName = Self.FCbbSyntax.Items[i] then
         IsNameExist := True;
     if not IsNameExist then
     begin
       Self.FCbbSyntax.Items.Append(SyntaxName);
-      ShowMessage('Синтаксис добавлен!');
+      Self.FCbbSyntax.Text := SyntaxName;
+      ShowMessage('Р§РµСЂРЅРѕРІРёРє СЏР·С‹РєР° ' + SyntaxName + ' СѓСЃРїРµС€РЅРѕ РґРѕР±Р°РІР»РµРЅ. ' +
+        'РќРµ Р·Р°Р±СѓРґСЊС‚Рµ СЃРѕС…СЂР°РЅРёС‚СЊ РµРіРѕ!');
       Self.Close;
     end
     else
-      ShowMessage('Такой синтаксис уже существует. Попробуйте другое имя');
+      ShowMessage('РўР°РєРѕР№ СЃРёРЅС‚Р°РєСЃРёСЃ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚. РџРѕРїСЂРѕР±СѓР№С‚Рµ РґСЂСѓРіРѕРµ РёРјСЏ.');
   end
   else
-    ShowMessage('Имя не может быть пустым');
+    ShowMessage('РРјСЏ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј.');
 end;
 
 procedure TFmNewSyntax.btnCancelClick(Sender: TObject);

@@ -3,10 +3,9 @@
 Interface
 
 Uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  System.Actions, Vcl.ActnList, Vcl.Menus, Vcl.StdCtrls, Vcl.ComCtrls,
-  Vcl.ExtDlgs, Vcl.ExtCtrls, SyntaxHighlighter, SyntaxFiles, SyntaxEditor;
+  Winapi.Windows, Winapi.Messages, Vcl.Controls, Vcl.StdCtrls, Vcl.Forms,
+  Vcl.Dialogs, Vcl.ActnList, Vcl.Menus, Vcl.ComCtrls, Vcl.ExtDlgs, Vcl.ExtCtrls,
+  Classes, Actions, SysUtils, SyntaxFiles, SyntaxHighlighter, SyntaxEditor;
 
 Type
   TMainForm = class(TForm)
@@ -17,7 +16,7 @@ Type
     mOpen: TMenuItem;
     mSave: TMenuItem;
     mSaveAs: TMenuItem;
-    Separator1: TMenuItem;
+    mSeparator1: TMenuItem;
     mExit: TMenuItem;
     mEdit: TMenuItem;
     mUndo: TMenuItem;
@@ -27,15 +26,13 @@ Type
     mPaste: TMenuItem;
     mDelete: TMenuItem;
     mSelectAll: TMenuItem;
-    Separator2: TMenuItem;
+    mSeparator2: TMenuItem;
     mInsertIndent: TMenuItem;
     mDeleteIndent: TMenuItem;
     mSearch: TMenuItem;
     mFind: TMenuItem;
     mReplace: TMenuItem;
     mSyntaxes: TMenuItem;
-    mSyntaxMenu: TMenuItem;
-    Separator3: TMenuItem;
     mAbout: TMenuItem;
     mAboutProgram: TMenuItem;
     aList: TActionList;
@@ -62,6 +59,8 @@ Type
     FindDialog: TFindDialog;
     ReplaceDialog: TReplaceDialog;
     syntaxTimer: TTimer;
+    N1: TMenuItem;
+    N2: TMenuItem;
 
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -119,9 +118,9 @@ begin
   Self.SyntaxList := TSyntaxList.create(Self.SyntaxPath);
 
   if not DirectoryExists(Self.SyntaxPath) then
-    Self.SyntaxList.createDefaultSyntaxes()
-  else
-    Self.SyntaxList.LoadExistingSyntaxFiles();
+    Self.SyntaxList.createDefaultSyntaxes();
+
+  Self.SyntaxList.LoadExistingSyntaxFiles();
 
   Languages := Self.SyntaxList.GetAllLanguages();
   for i := 0 to Self.SyntaxList.Count - 1 do
@@ -377,6 +376,7 @@ begin
   begin
     Self.FmSyntaxEditor := TFmSyntaxEditor.Create(Self);
     Self.FmSyntaxEditor.SyntaxList := Self.SyntaxList;
+    Self.FmSyntaxEditor.SyntaxTab := Self.mSyntaxes;
   end;
 
   Self.FmSyntaxEditor.ShowModal;

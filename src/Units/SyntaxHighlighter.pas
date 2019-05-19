@@ -3,8 +3,8 @@
 Interface
 
 Uses
-  Winapi.Windows, Winapi.Messages, System.Classes, Vcl.Graphics, Vcl.ComCtrls,
-  StrUtils, SysUtils, SyntaxFiles;
+  Winapi.Windows, Winapi.Messages, Vcl.Graphics, Vcl.ComCtrls, Classes,
+  StrUtils, SyntaxFiles;
 
 Procedure Highlight(var SyntaxList: TSyntaxList; fileName: string; var RichEdit, RECopy: TRichEdit);
 

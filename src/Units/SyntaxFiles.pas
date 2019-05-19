@@ -46,6 +46,7 @@ type
     function GetSyntaxInfoFromFile(PathToFile: string): TSyntaxInfo;
     function GetNodeByFileName(const name: string): TSyntaxNode;
     function GetNodeByFileExtension(const FileExt: string): TSyntaxNode;
+    function GetSyntaxByName(const name: string): PSyntaxInfo;
     procedure RemoveNode(var Node: TSyntaxNode);
     procedure FillAsDefault();
   public
@@ -57,14 +58,13 @@ type
                             const sLineComment, mLineCommentBegin,
                             mLineCommentEnd: shortString): TSyntaxInfo;
     procedure AppendSyntax(const Syntax: PSyntaxInfo; const fileName: string);
-    procedure removeSyntaxByFileName(const name: string);
-    function GetSyntaxByFileName(const name: string): PSyntaxInfo;
+    procedure RemoveSyntaxByName(const name: string);
     function GetCount(): integer;
     procedure SaveSyntaxFiles();
     procedure ClearList();
     function GetAllLanguages(): TLangNames;
     function CheckFileForCode(const FilePath: string): string;
-    property Syntaxes[const fileName: string]: PSyntaxInfo read GetSyntaxByFileName; default;
+    property Syntaxes[const Name: string]: PSyntaxInfo read GetSyntaxByName; default;
     property Count: integer read GetCount;
   end;
 
@@ -190,7 +190,7 @@ begin
   inc(self.FCount);
 end;
 
-procedure TSyntaxList.removeSyntaxByFileName(const name: string);
+procedure TSyntaxList.RemoveSyntaxByName(const name: string);
 var
   Node: TSyntaxNode;
 begin
@@ -200,7 +200,7 @@ begin
     Self.RemoveNode(Node);
 end;
 
-function TSyntaxList.GetSyntaxByFileName(const name: string): PSyntaxInfo;
+function TSyntaxList.GetSyntaxByName(const name: string): PSyntaxInfo;
 var
   Node: TSyntaxNode;
 begin
@@ -228,17 +228,17 @@ begin
   end;
 end;
 
-procedure TSyntaxList.ClearList;
+procedure TSyntaxList.ClearList();
 var
-  CurrNode, BufNode: TSyntaxNode;
+  CurrNode: TSyntaxNode;
 begin
   CurrNode := Self.head;
   while CurrNode <> nil do
   begin
-    BufNode := CurrNode.next;
+    Self.head := CurrNode.next;
     Dispose(CurrNode.syntax);
     CurrNode.Destroy();
-    CurrNode := BufNode;
+    CurrNode := Self.head;
   end;
 
   Self.head := nil;
@@ -346,14 +346,21 @@ begin
     Node.next.prev := Node.prev;
   end
   else if Node = Self.head then
-    Self.head := Node.next
+  begin
+    Self.head := Node.next;
+    if Self.head <> nil then
+      Self.head.prev := nil;
+  end
   else if Node = Self.tail then
+  begin
     Self.tail := Node.prev;
-
-  Dispose(Node.syntax);
-  Node.Destroy();
+    if Self.tail <> nil then
+      Self.tail.next := nil;
+  end;
 
   DeleteFile(Self.syntaxPath + '\' + Node.fileName + Node.fileExtension);
+  Dispose(Node.syntax);
+  Node.Destroy();
   Dec(Self.FCount);
 end;
 
@@ -430,35 +437,43 @@ var
 begin
   New(PSyntax);
   PSyntax^ := CreateSyntaxInfo('cs', CSharpReserved, '//', '/*', '*/');
-  self.AppendSyntax(PSyntax, 'C#');
+  TSyntaxNode.create(PSyntax, Self.syntaxPath, 'C#',
+    Self.fileExtension).updateSyntaxFile();
 
   New(PSyntax);
   PSyntax^ := CreateSyntaxInfo('cpp', CPlusPlusReserved, '//', '/*', '*/');
-  self.AppendSyntax(PSyntax, 'C++');
+  TSyntaxNode.create(PSyntax, Self.syntaxPath, 'C++',
+    Self.fileExtension).updateSyntaxFile();
 
   New(PSyntax);
   PSyntax^ := CreateSyntaxInfo('c', CLangReserved, '//', '/*', '*/');
-  self.AppendSyntax(PSyntax, 'C');
+  TSyntaxNode.create(PSyntax, Self.syntaxPath, 'C',
+    Self.fileExtension).updateSyntaxFile();
 
   New(PSyntax);
   PSyntax^ := CreateSyntaxInfo('go', GoLangReserved, '//', '/*', '*/');
-  self.AppendSyntax(PSyntax, 'Go');
+  TSyntaxNode.create(PSyntax, Self.syntaxPath, 'Go',
+    Self.fileExtension).updateSyntaxFile();
 
   New(PSyntax);
   PSyntax^ := CreateSyntaxInfo('java', JavaReserved, '//', '/*', '*/');
-  self.AppendSyntax(PSyntax, 'Java');
+  TSyntaxNode.create(PSyntax, Self.syntaxPath, 'Java',
+    Self.fileExtension).updateSyntaxFile();
 
   New(PSyntax);
   PSyntax^ := CreateSyntaxInfo('js', JavaScriptReserved, '//', '/*', '*/');
-  self.AppendSyntax(PSyntax, 'JavaScript');
+  TSyntaxNode.create(PSyntax, Self.syntaxPath, 'JavaScript',
+    Self.fileExtension).updateSyntaxFile();
 
   New(PSyntax);
   PSyntax^ := CreateSyntaxInfo('kt', KotlinReserved, '//', '/*', '*/');
-  self.AppendSyntax(PSyntax, 'Kotlin');
+  TSyntaxNode.create(PSyntax, Self.syntaxPath, 'Kotlin',
+    Self.fileExtension).updateSyntaxFile();
 
   New(PSyntax);
   PSyntax^ := CreateSyntaxInfo('py', PythonReserved, '#', '"""', '"""');
-  self.AppendSyntax(PSyntax, 'Python');
+  TSyntaxNode.create(PSyntax, Self.syntaxPath, 'Python',
+    Self.fileExtension).updateSyntaxFile();
 end;
 
 End.

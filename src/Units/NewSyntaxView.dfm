@@ -1,7 +1,7 @@
 object FmNewSyntax: TFmNewSyntax
   Left = 0
   Top = 0
-  Caption = #1053#1086#1074#1099#1081' '#1089#1080#1085#1090#1072#1082#1089#1080#1089
+  Caption = #1053#1086#1074#1099#1081' '#1103#1079#1099#1082
   ClientHeight = 153
   ClientWidth = 382
   Color = clBtnFace

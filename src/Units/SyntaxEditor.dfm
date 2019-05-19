@@ -2131,6 +2131,7 @@ object FmSyntaxEditor: TFmSyntaxEditor
     FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
   OldCreateOrder = False
   Position = poDesktopCenter
+  OnClose = FormClose
   PixelsPerInch = 120
   TextHeight = 16
   object lblReservedWords: TLabel
@@ -2200,6 +2201,7 @@ object FmSyntaxEditor: TFmSyntaxEditor
     Top = 288
     Width = 336
     Height = 24
+    MaxLength = 2
     TabOrder = 3
   end
   object edtMultLnCommentBegin: TEdit
@@ -2207,6 +2209,7 @@ object FmSyntaxEditor: TFmSyntaxEditor
     Top = 352
     Width = 336
     Height = 24
+    MaxLength = 3
     TabOrder = 4
   end
   object edtMultLnCommentEnd: TEdit
@@ -2214,6 +2217,7 @@ object FmSyntaxEditor: TFmSyntaxEditor
     Top = 422
     Width = 336
     Height = 24
+    MaxLength = 3
     TabOrder = 5
   end
   object btnSave: TButton
@@ -2230,7 +2234,7 @@ object FmSyntaxEditor: TFmSyntaxEditor
     Top = 520
     Width = 185
     Height = 25
-    Caption = #1057#1073#1088#1086#1089#1080#1090#1100' '#1082' '#1089#1090#1072#1085#1076#1072#1088#1090#1085#1099#1084'...'
+    Caption = #1057#1073#1088#1086#1089#1080#1090#1100' '#1089#1090#1072#1085#1076#1072#1088#1090#1085#1099#1077'...'
     TabOrder = 7
     OnClick = btnResetClick
   end
@@ -2239,6 +2243,7 @@ object FmSyntaxEditor: TFmSyntaxEditor
     Top = 88
     Width = 336
     Height = 24
+    MaxLength = 5
     TabOrder = 8
   end
   object btnRemove: TButton
