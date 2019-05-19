@@ -54,7 +54,7 @@ implementation
 {$R *.dfm}
 
 uses
-  Main;
+  uMainView;
 
 { published }
 
@@ -62,24 +62,24 @@ procedure TFmSyntaxEditor.FormClose(Sender: TObject; var Action: TCloseAction);
 var
   Languages: TLangNames;
   i: integer;
-  mSyntaxMenu, mSeparator, SyntaxItem: TMenuItem;
+  miSyntaxMenu, miSeparator, miSyntaxItem: TMenuItem;
 begin
   Self.FSyntaxTab.Clear;
 
-  mSyntaxMenu := TMenuItem.Create(Self);
-  mSyntaxMenu.Action := Main.MainForm.aSyntaxMenu;
-  mSeparator := TMenuItem.Create(Self);
-  mSeparator.Caption := '-';
-  Self.FSyntaxTab.Insert(0, mSyntaxMenu);
-  Self.FSyntaxTab.Insert(1, mSeparator);
+  miSyntaxMenu := TMenuItem.Create(Self);
+  miSyntaxMenu.Action := uMainView.FmMain.actSyntaxMenu;
+  miSeparator := TMenuItem.Create(Self);
+  miSeparator.Caption := '-';
+  Self.FSyntaxTab.Insert(0, miSyntaxMenu);
+  Self.FSyntaxTab.Insert(1, miSeparator);
 
   Languages := Self.FSyntaxList.GetAllLanguages();
   for i := 0 to Self.FSyntaxList.Count - 1 do
   begin
-    SyntaxItem := TMenuItem.Create(Self);
-    SyntaxItem.Caption := Languages[i];
-    SyntaxItem.OnClick := Main.MainForm.onSyntaxClick;
-    Self.FSyntaxTab.Insert(i + 2, SyntaxItem);
+    miSyntaxItem := TMenuItem.Create(Self);
+    miSyntaxItem.Caption := Languages[i];
+    miSyntaxItem.OnClick := uMainView.FmMain.onSyntaxClick;
+    Self.FSyntaxTab.Insert(i + 2, miSyntaxItem);
   end;
 
   Self.UpdateMenu();

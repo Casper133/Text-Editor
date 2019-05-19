@@ -1,4 +1,4 @@
-object MainForm: TMainForm
+object FmMain: TFmMain
   Left = 0
   Top = 0
   Caption = 'Text Editor'
@@ -2152,86 +2152,86 @@ object MainForm: TMainForm
   object mMenu: TMainMenu
     Left = 24
     Top = 440
-    object mFile: TMenuItem
+    object miFile: TMenuItem
       Caption = #1060#1072#1081#1083
-      object mNew: TMenuItem
-        Action = aNewFile
+      object miNew: TMenuItem
+        Action = actNewFile
       end
-      object mOpen: TMenuItem
-        Action = aOpenFile
+      object miOpen: TMenuItem
+        Action = actOpenFile
       end
-      object mSave: TMenuItem
-        Action = aSaveFile
+      object miSave: TMenuItem
+        Action = actSaveFile
       end
-      object mSaveAs: TMenuItem
-        Action = aSaveAsFile
+      object miSaveAs: TMenuItem
+        Action = actSaveAsFile
       end
-      object mSeparator1: TMenuItem
+      object miSeparator1: TMenuItem
         Caption = '-'
       end
-      object mExit: TMenuItem
-        Action = aExit
+      object miExit: TMenuItem
+        Action = actExit
       end
     end
     object mEdit: TMenuItem
       Caption = #1055#1088#1072#1074#1082#1072
-      object mUndo: TMenuItem
-        Action = aUndo
+      object miUndo: TMenuItem
+        Action = actUndo
       end
-      object mRedo: TMenuItem
-        Action = aRedo
+      object miRedo: TMenuItem
+        Action = actRedo
       end
-      object mCut: TMenuItem
-        Action = aCut
+      object miCut: TMenuItem
+        Action = actCut
       end
-      object mCopy: TMenuItem
-        Action = aCopy
+      object miCopy: TMenuItem
+        Action = actCopy
       end
-      object mPaste: TMenuItem
-        Action = aPaste
+      object miPaste: TMenuItem
+        Action = actPaste
       end
-      object mDelete: TMenuItem
-        Action = aDelete
+      object miDelete: TMenuItem
+        Action = actDelete
       end
-      object mSelectAll: TMenuItem
-        Action = aSelectAll
+      object miSelectAll: TMenuItem
+        Action = actSelectAll
       end
-      object mSeparator2: TMenuItem
+      object miSeparator2: TMenuItem
         Caption = '-'
       end
-      object mInsertIndent: TMenuItem
-        Action = aInsertIndent
+      object miInsertIndent: TMenuItem
+        Action = actInsertIndent
       end
-      object mDeleteIndent: TMenuItem
-        Action = aDeleteIndent
+      object miDeleteIndent: TMenuItem
+        Action = actDeleteIndent
       end
     end
     object mSearch: TMenuItem
       Caption = #1055#1086#1080#1089#1082
-      object mFind: TMenuItem
-        Action = aFind
+      object miFind: TMenuItem
+        Action = actFind
       end
-      object mReplace: TMenuItem
-        Action = aReplace
+      object miReplace: TMenuItem
+        Action = actReplace
       end
     end
     object mSyntaxes: TMenuItem
       Caption = #1057#1080#1085#1090#1072#1082#1089#1080#1089#1099
-      object mSyntaxMenu: TMenuItem
-        Action = aSyntaxMenu
+      object miSyntaxMenu: TMenuItem
+        Action = actSyntaxMenu
       end
-      object mSeparator3: TMenuItem
+      object miSeparator3: TMenuItem
         Caption = '-'
       end
     end
-    object mAbout: TMenuItem
+    object miAbout: TMenuItem
       Caption = '?'
-      object mAboutProgram: TMenuItem
-        Action = aAboutProgram
+      object miAboutProgram: TMenuItem
+        Action = actAboutProgram
       end
     end
   end
-  object fOpenDialog: TOpenTextFileDialog
+  object dlgOpen: TOpenTextFileDialog
     Filter = 
       'All files (*.*)|*.*|Text file (*.txt)|*.txt|C source file (*.c)|' +
       '*.c|C++ source file (*.cpp)|*.cpp|C# source file (*.cs)|*.cs|Go ' +
@@ -2242,7 +2242,7 @@ object MainForm: TMainForm
     Left = 128
     Top = 440
   end
-  object fSaveDialog: TSaveTextFileDialog
+  object dlgSave: TSaveTextFileDialog
     DefaultExt = 'txt'
     FileName = 'New'
     Filter = 
@@ -2253,10 +2253,10 @@ object MainForm: TMainForm
       'n source file (*.py)|*.py'
     FilterIndex = 2
     EncodingIndex = 4
-    Left = 208
+    Left = 200
     Top = 440
   end
-  object syntaxTimer: TTimer
+  object tmSyntax: TTimer
     Enabled = False
     Interval = 2000
     OnTimer = onSyntaxTimer
@@ -2266,120 +2266,120 @@ object MainForm: TMainForm
   object aList: TActionList
     Left = 72
     Top = 440
-    object aNewFile: TAction
+    object actNewFile: TAction
       Category = 'acFile'
       Caption = #1053#1086#1074#1099#1081
       ShortCut = 16462
-      OnExecute = aNewFileExecute
+      OnExecute = actNewFileExecute
     end
-    object aUndo: TAction
+    object actUndo: TAction
       Category = 'acEdit'
       Caption = #1054#1090#1084#1077#1085#1072
       ShortCut = 16474
-      OnExecute = aUndoExecute
+      OnExecute = actUndoExecute
     end
-    object aOpenFile: TAction
+    object actOpenFile: TAction
       Category = 'acFile'
       Caption = #1054#1090#1082#1088#1099#1090#1100
       ShortCut = 16463
-      OnExecute = aOpenFileExecute
+      OnExecute = actOpenFileExecute
     end
-    object aSaveFile: TAction
+    object actSaveFile: TAction
       Category = 'acFile'
       Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
       ShortCut = 16467
-      OnExecute = aSaveFileExecute
+      OnExecute = actSaveFileExecute
     end
-    object aSaveAsFile: TAction
+    object actSaveAsFile: TAction
       Category = 'acFile'
       Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1082#1072#1082'...'
       ShortCut = 49235
-      OnExecute = aSaveAsFileExecute
+      OnExecute = actSaveAsFileExecute
     end
-    object aExit: TAction
+    object actExit: TAction
       Category = 'acFile'
       Caption = #1042#1099#1093#1086#1076
       ShortCut = 32856
-      OnExecute = aExitExecute
+      OnExecute = actExitExecute
     end
-    object aRedo: TAction
+    object actRedo: TAction
       Category = 'acEdit'
       Caption = #1055#1086#1074#1090#1086#1088
       ShortCut = 24666
-      OnExecute = aRedoExecute
+      OnExecute = actRedoExecute
     end
-    object aCut: TAction
+    object actCut: TAction
       Category = 'acEdit'
       Caption = #1042#1099#1088#1077#1079#1072#1090#1100
       ShortCut = 16472
-      OnExecute = aCutExecute
+      OnExecute = actCutExecute
     end
-    object aCopy: TAction
+    object actCopy: TAction
       Category = 'acEdit'
       Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100
       ShortCut = 16451
-      OnExecute = aCopyExecute
+      OnExecute = actCopyExecute
     end
-    object aPaste: TAction
+    object actPaste: TAction
       Category = 'acEdit'
       Caption = #1042#1089#1090#1072#1074#1080#1090#1100
       ShortCut = 16470
-      OnExecute = aPasteExecute
+      OnExecute = actPasteExecute
     end
-    object aDelete: TAction
+    object actDelete: TAction
       Category = 'acEdit'
       Caption = #1059#1076#1072#1083#1080#1090#1100
       ShortCut = 46
-      OnExecute = aDeleteExecute
+      OnExecute = actDeleteExecute
     end
-    object aSelectAll: TAction
+    object actSelectAll: TAction
       Category = 'acEdit'
       Caption = #1042#1099#1076#1077#1083#1080#1090#1100' '#1074#1089#1105
       ShortCut = 16449
-      OnExecute = aSelectAllExecute
+      OnExecute = actSelectAllExecute
     end
-    object aInsertIndent: TAction
+    object actInsertIndent: TAction
       Category = 'acEdit'
       Caption = #1042#1089#1090#1072#1074#1080#1090#1100' '#1086#1090#1089#1090#1091#1087
       ShortCut = 9
-      OnExecute = aInsertIndentExecute
+      OnExecute = actInsertIndentExecute
     end
-    object aDeleteIndent: TAction
+    object actDeleteIndent: TAction
       Category = 'acEdit'
       Caption = #1059#1076#1072#1083#1080#1090#1100' '#1086#1090#1089#1090#1091#1087
       ShortCut = 8201
-      OnExecute = aDeleteIndentExecute
+      OnExecute = actDeleteIndentExecute
     end
-    object aFind: TAction
+    object actFind: TAction
       Category = 'acSearch'
       Caption = #1053#1072#1081#1090#1080'...'
       ShortCut = 16454
-      OnExecute = aFindExecute
+      OnExecute = actFindExecute
     end
-    object aReplace: TAction
+    object actReplace: TAction
       Category = 'acSearch'
       Caption = #1047#1072#1084#1077#1085#1072'...'
       ShortCut = 16456
-      OnExecute = aReplaceExecute
+      OnExecute = actReplaceExecute
     end
-    object aAboutProgram: TAction
+    object actAboutProgram: TAction
       Category = 'acAbout'
       Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077'...'
     end
-    object aSyntaxMenu: TAction
+    object actSyntaxMenu: TAction
       Category = 'acSyntax'
       Caption = #1056#1077#1076#1072#1082#1090#1086#1088'...'
-      OnExecute = aSyntaxMenuExecute
+      OnExecute = actSyntaxMenuExecute
     end
   end
-  object FindDialog: TFindDialog
-    OnFind = FindDialogFind
+  object dlgFind: TFindDialog
+    OnFind = dlgFindFind
     Left = 280
     Top = 440
   end
-  object ReplaceDialog: TReplaceDialog
-    OnFind = ReplaceDialogFind
-    OnReplace = ReplaceDialogReplace
+  object dlgReplace: TReplaceDialog
+    OnFind = dlgReplaceFind
+    OnReplace = dlgReplaceReplace
     Left = 360
     Top = 440
   end

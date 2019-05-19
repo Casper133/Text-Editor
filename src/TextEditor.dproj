@@ -98,8 +98,8 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="Forms\Main.pas">
-            <Form>MainForm</Form>
+        <DCCReference Include="Forms\uMainView.pas">
+            <Form>FmMain</Form>
         </DCCReference>
         <DCCReference Include="Forms\uSyntaxEditorView.pas">
             <Form>FmSyntaxEditor</Form>
