@@ -3,8 +3,8 @@
 uses
   Vcl.Forms,
   Main in 'Forms\Main.pas' {MainForm},
-  SyntaxEditor in 'Forms\SyntaxEditor.pas' {FmSyntaxEditor},
-  NewSyntaxView in 'Forms\NewSyntaxView.pas' {FmNewSyntax},
+  uSyntaxEditorView in 'Forms\uSyntaxEditorView.pas' {FmSyntaxEditor},
+  uNewSyntaxView in 'Forms\uNewSyntaxView.pas' {FmNewSyntax},
   uSyntaxHighlighter in 'Units\uSyntaxHighlighter.pas' {/uSyntaxFiles in 'Units\uSyntaxFiles.pas';},
   uSyntaxEntity in 'Units\uSyntaxEntity.pas';
 

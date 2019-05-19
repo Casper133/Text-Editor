@@ -5,7 +5,8 @@ Interface
 Uses
   Winapi.Windows, Winapi.Messages, Vcl.Controls, Vcl.StdCtrls, Vcl.Forms,
   Vcl.Dialogs, Vcl.ActnList, Vcl.Menus, Vcl.ComCtrls, Vcl.ExtDlgs, Vcl.ExtCtrls,
-  Classes, Actions, SysUtils, uSyntaxEntity, uSyntaxHighlighter, SyntaxEditor;
+  Classes, Actions, SysUtils, uSyntaxEntity, uSyntaxHighlighter,
+  uSyntaxEditorView;
 
 Type
   TMainForm = class(TForm)

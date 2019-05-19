@@ -1,10 +1,10 @@
-﻿unit SyntaxEditor;
+﻿unit uSyntaxEditorView;
 
 interface
 
 uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Menus, Classes,
-  UITypes, SysUtils, uSyntaxEntity, NewSyntaxView;
+  UITypes, SysUtils, uSyntaxEntity, uNewSyntaxView;
 
 type
   TFmSyntaxEditor = class(TForm)
@@ -35,15 +35,15 @@ type
     FSyntaxList: TSyntaxList;
     FSyntaxTab: TMenuItem;
     FmNewSyntax: TFmNewSyntax;
+    procedure ClearTextFields();
+    procedure RemoveSyntaxFromMenu(const SyntaxName: string);
     procedure SetSyntaxList(SyntaxList: TSyntaxList);
     procedure SetSyntaxTab(SyntaxTab: TMenuItem);
-    procedure ClearTextFields();
-    procedure UpdateMenu();
     function TransformReservedWords(): TReserved;
-    procedure RemoveSyntaxFromMenu(const SyntaxName: string);
+    procedure UpdateMenu();
   public
-    property SyntaxList: TSyntaxList Write SetSyntaxList;
-    property SyntaxTab: TMenuItem Write SetSyntaxTab;
+    property SyntaxList: TSyntaxList write SetSyntaxList;
+    property SyntaxTab: TMenuItem write SetSyntaxTab;
   end;
 
 var
@@ -218,17 +218,6 @@ end;
 
 { private }
 
-procedure TFmSyntaxEditor.SetSyntaxList(SyntaxList: TSyntaxList);
-begin
-  Self.FSyntaxList := SyntaxList;
-  Self.UpdateMenu();
-end;
-
-procedure TFmSyntaxEditor.SetSyntaxTab(SyntaxTab: TMenuItem);
-begin
-  Self.FSyntaxTab := SyntaxTab;
-end;
-
 procedure TFmSyntaxEditor.ClearTextFields();
 begin
   Self.edtFileExtension.Text := '';
@@ -238,16 +227,28 @@ begin
   Self.edtMultLnCommentEnd.Text := '';
 end;
 
-procedure TFmSyntaxEditor.UpdateMenu();
+procedure TFmSyntaxEditor.RemoveSyntaxFromMenu(const SyntaxName: string);
 var
-  Languages: TLangNames;
-  i: integer;
+  i, Count: integer;
 begin
-  Self.cbbSyntax.Clear;
+  Count := Self.cbbSyntax.Items.Count;
+  for i := 0 to Count - 1 do
+    if Self.cbbSyntax.Items[i] = SyntaxName then
+    begin
+      Self.cbbSyntax.Items.Delete(i);
+      break;
+    end;
+end;
 
-  Languages := Self.FSyntaxList.GetAllLanguages();
-  for i := 0 to Self.FSyntaxList.Count - 1 do
-    Self.cbbSyntax.Items.Append(Languages[i]);
+procedure TFmSyntaxEditor.SetSyntaxList(SyntaxList: TSyntaxList);
+begin
+  Self.FSyntaxList := SyntaxList;
+  Self.UpdateMenu();
+end;
+
+procedure TFmSyntaxEditor.SetSyntaxTab(SyntaxTab: TMenuItem);
+begin
+  Self.FSyntaxTab := SyntaxTab;
 end;
 
 function TFmSyntaxEditor.TransformReservedWords(): TReserved;
@@ -289,17 +290,16 @@ begin
   end;
 end;
 
-procedure TFmSyntaxEditor.RemoveSyntaxFromMenu(const SyntaxName: string);
+procedure TFmSyntaxEditor.UpdateMenu();
 var
-  i, Count: integer;
+  Languages: TLangNames;
+  i: integer;
 begin
-  Count := Self.cbbSyntax.Items.Count;
-  for i := 0 to Count - 1 do
-    if Self.cbbSyntax.Items[i] = SyntaxName then
-    begin
-      Self.cbbSyntax.Items.Delete(i);
-      break;
-    end;
+  Self.cbbSyntax.Clear;
+
+  Languages := Self.FSyntaxList.GetAllLanguages();
+  for i := 0 to Self.FSyntaxList.Count - 1 do
+    Self.cbbSyntax.Items.Append(Languages[i]);
 end;
 
 end.
