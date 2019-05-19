@@ -2217,10 +2217,10 @@ object MainForm: TMainForm
     end
     object mSyntaxes: TMenuItem
       Caption = #1057#1080#1085#1090#1072#1082#1089#1080#1089#1099
-      object N1: TMenuItem
+      object mSyntaxMenu: TMenuItem
         Action = aSyntaxMenu
       end
-      object N2: TMenuItem
+      object mSeparator3: TMenuItem
         Caption = '-'
       end
     end

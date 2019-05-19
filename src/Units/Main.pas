@@ -33,6 +33,8 @@ Type
     mFind: TMenuItem;
     mReplace: TMenuItem;
     mSyntaxes: TMenuItem;
+    mSyntaxMenu: TMenuItem;
+    mSeparator3: TMenuItem;
     mAbout: TMenuItem;
     mAboutProgram: TMenuItem;
     aList: TActionList;
@@ -59,8 +61,6 @@ Type
     FindDialog: TFindDialog;
     ReplaceDialog: TReplaceDialog;
     syntaxTimer: TTimer;
-    N1: TMenuItem;
-    N2: TMenuItem;
 
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
