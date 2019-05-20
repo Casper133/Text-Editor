@@ -2148,8 +2148,6 @@ object FmMain: TFmMain
     TabOrder = 0
     Zoom = 100
     OnChange = RichEditChange
-    ExplicitTop = 29
-    ExplicitHeight = 471
   end
   object tbMain: TToolBar
     Left = 0

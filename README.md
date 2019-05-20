@@ -1,7 +1,7 @@
 # Text Editor
 Текущая версия: 1.0
 
-[Скачать .exe](https://github.com/Casper133/TextEditor/releases/download/v1.0/TextEditor.exe)
+[Скачать](https://github.com/Casper133/TextEditor/releases/download/v1.0/TextEditor.exe)
 
 Фичи:
 - Подсветка синтаксиса
@@ -10,9 +10,17 @@
 - Добавление своего языка для подсветки через специальное меню (Синтаксисы -> Редактор)
 - Редактирование и удаление языков программирования для подсветки
 
+#### Количество строк кода:
+![Количество строк](https://i.imgur.com/7ZcejH4.png)
+
+## Интерфейс
+
 ### Главное окно:
 ![Рабочее окно](https://i.imgur.com/sEcihyC.png)
 
 ### Редактор синтаксиса:
 ![Редактор](https://i.imgur.com/vfHlZ9K.png)
 ![Редактор](https://i.imgur.com/AIQv1gn.png)
+
+### Добавление нового языка для подсветки:
+![Новый язык](https://i.imgur.com/uGt7Q0r.png)

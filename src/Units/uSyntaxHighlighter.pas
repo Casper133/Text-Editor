@@ -6,16 +6,16 @@ uses
   Winapi.Windows, Winapi.Messages, Vcl.Graphics, Vcl.ComCtrls, Classes,
   StrUtils, uSyntaxEntity;
 
-procedure RepaintOff(var ARichEdit: TRichEdit; var EventMask: Integer);
-procedure RepaintRichEdit(var ARichEdit: TRichEdit; var EventMask: Integer);
+procedure RepaintOff(var ARichEdit: TRichEdit; var AEventMask: Integer);
+procedure RepaintRichEdit(var ARichEdit: TRichEdit; var AEventMask: Integer);
 
-procedure SaveSelects(var ARichEdit: TRichEdit; var SelStart, SelLen: Integer);
-procedure LoadSelects(var ARichEdit: TRichEdit; var SelStart, SelLen: Integer);
+procedure SaveSelects(var ARichEdit: TRichEdit; var ASelStart, ASelLen: Integer);
+procedure LoadSelects(var ARichEdit: TRichEdit; var ASelStart, ASelLen: Integer);
 
-procedure SaveScrolls(var ARichEdit: TRichEdit; var ScrollInfoH,
-  ScrollInfoV: tagSCROLLINFO);
-procedure LoadScrolls(var ARichEdit: TRichEdit; var ScrollInfoH,
-  ScrollInfoV: tagSCROLLINFO);
+procedure SaveScrolls(var ARichEdit: TRichEdit; var AScrollInfoH,
+  AScrollInfoV: tagSCROLLINFO);
+procedure LoadScrolls(var ARichEdit: TRichEdit; var AScrollInfoH,
+  AScrollInfoV: tagSCROLLINFO);
 
 procedure FillMemoryRichEdit(var ARichEditMain, ARichEditCopy: TRichEdit);
 procedure FillMainRichEdit(var ARichEditMain, ARichEditCopy: TRichEdit);
@@ -25,56 +25,56 @@ procedure Highlight(var ASyntaxList: TSyntaxList; const ASyntaxName: string;
 
 implementation
 
-procedure RepaintOff(var ARichEdit: TRichEdit; var EventMask: Integer);
+procedure RepaintOff(var ARichEdit: TRichEdit; var AEventMask: Integer);
 begin
   ARichEdit.DoubleBuffered := True;
   SendMessage(ARichEdit.Handle, WM_SETREDRAW, 0, 0);
-  EventMask := SendMessage(ARichEdit.Handle, WM_USER + 69, 0, 0);
+  AEventMask := SendMessage(ARichEdit.Handle, WM_USER + 69, 0, 0);
 end;
 
-procedure RepaintRichEdit(var ARichEdit: TRichEdit; var EventMask: Integer);
+procedure RepaintRichEdit(var ARichEdit: TRichEdit; var AEventMask: Integer);
 begin
   SendMessage(ARichEdit.Handle, WM_SETREDRAW, 1, 0);
   InvalidateRect(ARichEdit.Handle, nil, True);
-  SendMessage(ARichEdit.Handle, WM_USER + 69, 0, EventMask);
+  SendMessage(ARichEdit.Handle, WM_USER + 69, 0, AEventMask);
   ARichEdit.DoubleBuffered := False;
   ARichEdit.Repaint;
 end;
 
-procedure SaveSelects(var ARichEdit: TRichEdit; var SelStart, SelLen: Integer);
+procedure SaveSelects(var ARichEdit: TRichEdit; var ASelStart, ASelLen: Integer);
 begin
-  SelStart := ARichEdit.SelStart;
-  SelLen := ARichEdit.SelLength;
+  ASelStart := ARichEdit.SelStart;
+  ASelLen := ARichEdit.SelLength;
 end;
 
-procedure LoadSelects(var ARichEdit: TRichEdit; var SelStart, SelLen: Integer);
+procedure LoadSelects(var ARichEdit: TRichEdit; var ASelStart, ASelLen: Integer);
 begin
-  ARichEdit.SelStart := SelStart;
-  ARichEdit.SelLength := SelLen;
+  ARichEdit.SelStart := ASelStart;
+  ARichEdit.SelLength := ASelLen;
 end;
 
-procedure SaveScrolls(var ARichEdit: TRichEdit; var ScrollInfoH,
-  ScrollInfoV: tagSCROLLINFO);
+procedure SaveScrolls(var ARichEdit: TRichEdit; var AScrollInfoH,
+  AScrollInfoV: tagSCROLLINFO);
 begin
-  FillChar(ScrollInfoV, SizeOf(ScrollInfoV), 0);
-  ScrollInfoV.cbSize := SizeOf(ScrollInfoV);
-  ScrollInfoV.fMask := SIF_POS;
+  FillChar(AScrollInfoV, SizeOf(AScrollInfoV), 0);
+  AScrollInfoV.cbSize := SizeOf(AScrollInfoV);
+  AScrollInfoV.fMask := SIF_POS;
 
-  FillChar(ScrollInfoH, SizeOf(ScrollInfoH), 0);
-  ScrollInfoH.cbSize := SizeOf(ScrollInfoH);
-  ScrollInfoH.fMask := SIF_POS;
+  FillChar(AScrollInfoH, SizeOf(AScrollInfoH), 0);
+  AScrollInfoH.cbSize := SizeOf(AScrollInfoH);
+  AScrollInfoH.fMask := SIF_POS;
 
-  GetScrollInfo(ARichEdit.Handle, SB_VERT, ScrollInfoV);
-  GetScrollInfo(ARichEdit.Handle, SB_HORZ, ScrollInfoH);
+  GetScrollInfo(ARichEdit.Handle, SB_VERT, AScrollInfoV);
+  GetScrollInfo(ARichEdit.Handle, SB_HORZ, AScrollInfoH);
 end;
 
-procedure LoadScrolls(var ARichEdit: TRichEdit; var ScrollInfoH,
-  ScrollInfoV: tagSCROLLINFO);
+procedure LoadScrolls(var ARichEdit: TRichEdit; var AScrollInfoH,
+  AScrollInfoV: tagSCROLLINFO);
 begin
   ARichEdit.Perform(WM_VSCROLL, SB_THUMBPOSITION +
-    ScrollInfoV.nPos * 65536, 0);
+    AScrollInfoV.nPos * 65536, 0);
   ARichEdit.Perform(WM_HSCROLL, SB_THUMBPOSITION +
-    ScrollInfoH.nPos * 65536, 0);
+    AScrollInfoH.nPos * 65536, 0);
 end;
 
 procedure FillMemoryRichEdit(var ARichEditMain, ARichEditCopy: TRichEdit);
@@ -208,7 +208,7 @@ begin
         ARichEditCopy.SelLength := i - MCommentStart + 1;
         ARichEditCopy.SelAttributes.Color := clGreen;
         IsMLineComment := False;
-        inc(i);
+        Inc(i);
         Continue;
       end;
 
