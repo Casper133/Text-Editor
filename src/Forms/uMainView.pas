@@ -415,7 +415,7 @@ end;
 procedure TFmMain.actAboutProgramExecute(Sender: TObject);
 begin
   ShowMessage('Текстовый редактор с подсветкой синтаксиса' + sLineBreak +
-    'GitHub: Casper133/text-editor' + sLineBreak + 'Текущая версия: 1.0');
+    'GitHub: Casper133/TextEditor' + sLineBreak + 'Текущая версия: 1.0');
 end;
 
 
