@@ -20,6 +20,10 @@ procedure LoadScrolls(var ARichEdit: TRichEdit; var AScrollInfoH,
 procedure FillMemoryRichEdit(var ARichEditMain, ARichEditCopy: TRichEdit);
 procedure FillMainRichEdit(var ARichEditMain, ARichEditCopy: TRichEdit);
 
+procedure HighlightCommentAndRWord(var i: Integer; const ATextLen,
+  ALinesCount: Integer; const ATextCopy, ASLineComment, ADelimiters: string;
+  var ARichEditCopy: TRichEdit; const AReservedWords: TReserved);
+
 procedure Highlight(var ASyntaxList: TSyntaxList; const ASyntaxName: string;
   var ARichEditMain, ARichEditCopy: TRichEdit);
 
@@ -111,6 +115,67 @@ begin
 end;
 
 
+procedure HighlightCommentAndRWord(var i: Integer; const ATextLen,
+  ALinesCount: Integer; const ATextCopy, ASLineComment, ADelimiters: string;
+  var ARichEditCopy: TRichEdit; const AReservedWords: TReserved);
+var
+  PossibleRWord: string;
+  IsHightlightPossible: Boolean;
+  n: Integer;
+begin
+  // Однострочный комментарий (окрашивание до конца строки)
+  if i < ATextLen then
+  begin
+    if (Copy(ATextCopy, i, Length(ASLineComment)) = ASLineComment) then
+    begin
+      ARichEditCopy.SelStart := i - 1 - ALinesCount;
+      ARichEditCopy.SelLength := PosEx(#$D, ATextCopy, i) - i;
+      ARichEditCopy.SelAttributes.Color := clGreen;
+      i := PosEx(#$D, ATextCopy, i) - 1;
+      exit;
+    end;
+  end;
+
+  { Поиск зарезервированного слова.
+    15 = самое длинное возможное зар. слово + 1 для символа из Delimiters }
+  PossibleRWord := Copy(ATextCopy, i, 16);
+
+  // Если это конец текста - добавление пробела для возможности выделения
+  if length(PossibleRWord) < 16 then
+    PossibleRWord := PossibleRWord + ' ';
+
+  IsHightlightPossible := False;
+
+  // Если начало текста
+  if i = 1 then
+    IsHightlightPossible := True;
+
+  // Если перед словом есть разделитель
+  if (i > 1) then
+    if Pos(ATextCopy[i - 1], ADelimiters) > 0 then
+      IsHightlightPossible := True;
+
+  if IsHightlightPossible then
+    for n := 1 to Length(AReservedWords) do
+      if Length(AReservedWords[n]) <> 0 then
+        // Если зарезервированное слово найдено...
+        if (Pos(AReservedWords[n], PossibleRWord) = 1) and
+          (Length(PossibleRWord) > Length(AReservedWords[n])) then
+
+          // ... и если за ним идет разделитель ...
+          if Pos(PossibleRWord[Length(AReservedWords[n]) + 1], ADelimiters) > 0 then
+          begin
+            // ... то окрашивание слова
+            ARichEditCopy.SelStart := i - 1 - ALinesCount;
+            ARichEditCopy.SelLength := Length(AReservedWords[n]);
+            ARichEditCopy.SelAttributes.Color := clBlue;
+            ARichEditCopy.SelAttributes.Style := [fsBold];
+            i := i + Length(AReservedWords[n]) - 1;
+            exit;
+          end;
+end;
+
+
 procedure Highlight(var ASyntaxList: TSyntaxList; const ASyntaxName: string;
   var ARichEditMain, ARichEditCopy: TRichEdit);
 const
@@ -119,15 +184,13 @@ const
 { Delimiters - символы, около которых могут быть зарезервированные слова }
 
 var
-  i, n: Integer;
+  i: Integer;
   LinesCount: Integer;
   IsMLineComment, IsInsideStr1, IsInsideStr2: Boolean;
   MCommentStart, InsideStrPos1, InsideStrPos2: Integer;
   EventMask: Integer;
-  PossibleRWord, TextCopy: string;
+  TextCopy: string;
   TextLen, SavedSelStart, SavedSelLen: Integer;
-  IsHightlightPossible: Boolean;
-  MemoryStream: TMemoryStream;
   ScrollInfoH, ScrollInfoV: tagSCROLLINFO;
   PSyntax: PSyntaxInfo;
   ReservedWords: TReserved;
@@ -230,19 +293,6 @@ begin
         Continue;
       end;
 
-      // Однострочный комментарий (окрашивание до конца строки)
-      if i < TextLen then
-      begin
-        if (Copy(TextCopy, i, Length(SLineComment)) = SLineComment) then
-        begin
-          ARichEditCopy.SelStart := i - 1 - LinesCount;
-          ARichEditCopy.SelLength := PosEx(#$D, TextCopy, i) - i;
-          ARichEditCopy.SelAttributes.Color := clGreen;
-          i := PosEx(#$D, TextCopy, i) - 1;
-          Continue;
-        end;
-      end;
-
       // Начало многострочного комментария
       if i < TextLen then
         if Copy(TextCopy, i, Length(MLineComment[1])) = MLineComment[1] then
@@ -253,43 +303,10 @@ begin
           Continue;
         end;
 
-      { Поиск зарезервированного слова.
-        15 = самое длинное возможное зар. слово + 1 для символа из Delimiters }
-      PossibleRWord := Copy(TextCopy, i, 16);
+      HighlightCommentAndRWord(i, TextLen, LinesCount, TextCopy, SLineComment,
+        Delimiters, ARichEditCopy, ReservedWords);
 
-      // Если это конец текста - добавление пробела для возможности выделения
-      if length(PossibleRWord) < 16 then
-        PossibleRWord := PossibleRWord + ' ';
-
-      IsHightlightPossible := False;
-
-      // Если начало текста
-      if i = 1 then
-        IsHightlightPossible := True;
-
-      // Если перед словом есть разделитель
-      if (i > 1) then
-        if Pos(TextCopy[i - 1], Delimiters) > 0 then
-          IsHightlightPossible := True;
-
-      if IsHightlightPossible then
-        for n := 1 to Length(ReservedWords) do
-          if Length(ReservedWords[n]) <> 0 then
-            // Если зарезервированное слово найдено...
-            if (Pos(ReservedWords[n], PossibleRWord) = 1) and
-              (Length(PossibleRWord) > Length(ReservedWords[n])) then
-
-              // ... и если за ним идет разделитель ...
-              if Pos(PossibleRWord[Length(ReservedWords[n]) + 1], Delimiters) > 0 then
-              begin
-                // ... то окрашивание слова
-                ARichEditCopy.SelStart := i - 1 - LinesCount;
-                ARichEditCopy.SelLength := Length(ReservedWords[n]);
-                ARichEditCopy.SelAttributes.Color := clBlue;
-                ARichEditCopy.SelAttributes.Style := [fsBold];
-                i := i + Length(ReservedWords[n]) - 1;
-                Continue;
-              end;
+      continue;
     end;
   end;
 
