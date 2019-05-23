@@ -119,20 +119,21 @@ procedure HighlightCommentAndRWord(var i: Integer; const ATextLen,
   ALinesCount: Integer; const ATextCopy, ASLineComment, ADelimiters: string;
   var ARichEditCopy: TRichEdit; const AReservedWords: TReserved);
 var
-  PossibleRWord: string;
+  PossibleRWord, TextBuf: string;
   IsHightlightPossible: Boolean;
-  n: Integer;
+  n, PosBuf: Integer;
 begin
   // Однострочный комментарий (окрашивание до конца строки)
   if i < ATextLen then
   begin
-    if (Copy(ATextCopy, i, Length(ASLineComment)) = ASLineComment) then
+    TextBuf := Copy(ATextCopy, i, Length(ASLineComment));
+    if TextBuf = ASLineComment then
     begin
       ARichEditCopy.SelStart := i - 1 - ALinesCount;
       ARichEditCopy.SelLength := PosEx(#$D, ATextCopy, i) - i;
       ARichEditCopy.SelAttributes.Color := clGreen;
       i := PosEx(#$D, ATextCopy, i) - 1;
-      exit;
+      Exit;
     end;
   end;
 
@@ -141,7 +142,7 @@ begin
   PossibleRWord := Copy(ATextCopy, i, 16);
 
   // Если это конец текста - добавление пробела для возможности выделения
-  if length(PossibleRWord) < 16 then
+  if Length(PossibleRWord) < 16 then
     PossibleRWord := PossibleRWord + ' ';
 
   IsHightlightPossible := False;
@@ -151,19 +152,21 @@ begin
     IsHightlightPossible := True;
 
   // Если перед словом есть разделитель
-  if (i > 1) then
-    if Pos(ATextCopy[i - 1], ADelimiters) > 0 then
+  PosBuf := Pos(ATextCopy[i - 1], ADelimiters);
+  if (i > 1) and (PosBuf > 0) then
       IsHightlightPossible := True;
 
   if IsHightlightPossible then
     for n := 1 to Length(AReservedWords) do
       if Length(AReservedWords[n]) <> 0 then
-        // Если зарезервированное слово найдено...
+        // Если зарезервированное слово найдено ...
         if (Pos(AReservedWords[n], PossibleRWord) = 1) and
           (Length(PossibleRWord) > Length(AReservedWords[n])) then
-
+        begin
           // ... и если за ним идет разделитель ...
-          if Pos(PossibleRWord[Length(AReservedWords[n]) + 1], ADelimiters) > 0 then
+          PosBuf :=
+            Pos(PossibleRWord[Length(AReservedWords[n]) + 1], ADelimiters);
+          if PosBuf > 0 then
           begin
             // ... то окрашивание слова
             ARichEditCopy.SelStart := i - 1 - ALinesCount;
@@ -171,8 +174,9 @@ begin
             ARichEditCopy.SelAttributes.Color := clBlue;
             ARichEditCopy.SelAttributes.Style := [fsBold];
             i := i + Length(AReservedWords[n]) - 1;
-            exit;
+            Exit;
           end;
+        end;
 end;
 
 
