@@ -176,7 +176,7 @@ begin
       if Length(SyntaxName) <> 0 then
       begin
         RECopy := TRichEdit.CreateParented(Self.Handle);
-        Highlight(Self.SyntaxList, Self.SyntaxName, Self.RichEdit, RECopy);
+        HighlightText(Self.SyntaxList, Self.SyntaxName, Self.RichEdit, RECopy);
       end;
     end;
 end;
@@ -408,7 +408,7 @@ begin
   RECopy := TRichEdit.CreateParented(Self.Handle);
   Self.SyntaxName := TMenuItem(Sender).Caption;
   Delete(Self.SyntaxName, 1, 1);
-  Highlight(Self.SyntaxList, Self.SyntaxName, Self.RichEdit, RECopy);
+  HighlightText(Self.SyntaxList, Self.SyntaxName, Self.RichEdit, RECopy);
 end;
 
 
@@ -433,7 +433,7 @@ begin
   begin
     RECopy := TRichEdit.CreateParented(Self.Handle);
     Self.tmSyntax.Enabled := false;
-    Highlight(Self.SyntaxList, Self.SyntaxName, Self.RichEdit, RECopy);
+    HighlightText(Self.SyntaxList, Self.SyntaxName, Self.RichEdit, RECopy);
   end;
 end;
 

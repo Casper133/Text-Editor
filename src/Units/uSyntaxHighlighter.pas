@@ -20,11 +20,11 @@ procedure LoadScrolls(var ARichEdit: TRichEdit; var AScrollInfoH,
 procedure FillMemoryRichEdit(var ARichEditMain, ARichEditCopy: TRichEdit);
 procedure FillMainRichEdit(var ARichEditMain, ARichEditCopy: TRichEdit);
 
-procedure HighlightCommentAndRWord(var i: Integer; const ATextLen,
+procedure Highlight(var i: Integer; const ATextLen,
   ALinesCount: Integer; const ATextCopy, ASLineComment, ADelimiters: string;
   var ARichEditCopy: TRichEdit; const AReservedWords: TReserved);
 
-procedure Highlight(var ASyntaxList: TSyntaxList; const ASyntaxName: string;
+procedure HighlightText(var ASyntaxList: TSyntaxList; const ASyntaxName: string;
   var ARichEditMain, ARichEditCopy: TRichEdit);
 
 implementation
@@ -115,7 +115,7 @@ begin
 end;
 
 
-procedure HighlightCommentAndRWord(var i: Integer; const ATextLen,
+procedure Highlight(var i: Integer; const ATextLen,
   ALinesCount: Integer; const ATextCopy, ASLineComment, ADelimiters: string;
   var ARichEditCopy: TRichEdit; const AReservedWords: TReserved);
 var
@@ -180,7 +180,7 @@ begin
 end;
 
 
-procedure Highlight(var ASyntaxList: TSyntaxList; const ASyntaxName: string;
+procedure HighlightText(var ASyntaxList: TSyntaxList; const ASyntaxName: string;
   var ARichEditMain, ARichEditCopy: TRichEdit);
 const
   Delimiters: string = ' ,(){}[]-+*%/=~!&|<>?:;.' + #$D#$A;
@@ -200,7 +200,6 @@ var
   ReservedWords: TReserved;
   SLineComment: string[2];
   MLineComment: TMLineComment;
-
 begin
   // Отключение перерисовки RichEdit на форме, сохранение всего нужного
   RepaintOff(ARichEditMain, EventMask);
@@ -307,10 +306,10 @@ begin
           Continue;
         end;
 
-      HighlightCommentAndRWord(i, TextLen, LinesCount, TextCopy, SLineComment,
+      Highlight(i, TextLen, LinesCount, TextCopy, SLineComment,
         Delimiters, ARichEditCopy, ReservedWords);
 
-      continue;
+      Continue;
     end;
   end;
 
