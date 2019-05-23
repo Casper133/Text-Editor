@@ -238,7 +238,7 @@ begin
 
   // Проход по всему тексту
   i := 0;
-  while (i <= TextLen) do
+  while (i >= 0) and (i <= TextLen) do
   begin
     i := i + 1;
 

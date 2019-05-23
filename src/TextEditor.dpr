@@ -5,7 +5,8 @@ uses
   uMainView in 'Forms\uMainView.pas' {FmMain},
   uSyntaxEditorView in 'Forms\uSyntaxEditorView.pas' {FmSyntaxEditor},
   uNewSyntaxView in 'Forms\uNewSyntaxView.pas' {FmNewSyntax},
-  uSyntaxHighlighter in 'Units\uSyntaxHighlighter.pas' {/uSyntaxFiles in 'Units\uSyntaxFiles.pas';},
+  uSyntaxHighlighter in 'Units\uSyntaxHighlighter.pas'
+    {/uSyntaxFiles in 'Units\uSyntaxFiles.pas';},
   uSyntaxEntity in 'Units\uSyntaxEntity.pas';
 
 {$R *.res}

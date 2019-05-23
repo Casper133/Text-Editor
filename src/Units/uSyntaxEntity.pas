@@ -51,7 +51,7 @@ type
     function GetNodeByCodeExtension(const ACodeExtension: string): TSyntaxNode;
     function GetNodeBySyntaxName(const ASyntaxName: string): TSyntaxNode;
     function GetSyntaxByName(const ASyntaxName: string): PSyntaxInfo;
-    function GetSyntaxInfoFromFile(APathToFile: string): TSyntaxInfo;
+    function GetSyntaxInfoFromFile(const APathToFile: string): TSyntaxInfo;
     procedure RemoveNode(var ASyntaxNode: TSyntaxNode);
   public
     constructor Create(const ASyntaxPath: string);
@@ -92,7 +92,7 @@ end;
 procedure TSyntaxNode.UpdateSyntaxFile();
 var
   SyntaxFile: file of TSyntaxInfo;
-  FileName: string;
+  FileName: string;	
 begin
   if Self.FSyntaxInfo <> nil then
   begin
@@ -273,7 +273,7 @@ begin
     Result := nil;
 end;
 
-function TSyntaxList.GetSyntaxInfoFromFile(APathToFile: string): TSyntaxInfo;
+function TSyntaxList.GetSyntaxInfoFromFile(const APathToFile: string): TSyntaxInfo;
 var
   SyntaxFile: file of TSyntaxInfo;
   SyntaxInfo: TSyntaxInfo;
