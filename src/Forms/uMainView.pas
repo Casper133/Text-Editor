@@ -407,7 +407,8 @@ var
 begin
   RECopy := TRichEdit.CreateParented(Self.Handle);
   Self.SyntaxName := TMenuItem(Sender).Caption;
-  Delete(Self.SyntaxName, 1, 1);
+  if Self.SyntaxName[1] = '&' then
+    Delete(Self.SyntaxName, 1, 1);
   HighlightText(Self.SyntaxList, Self.SyntaxName, Self.RichEdit, RECopy);
 end;
 
