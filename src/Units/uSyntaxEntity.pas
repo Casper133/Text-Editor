@@ -80,8 +80,7 @@ implementation
 
 { private }
 
-constructor TSyntaxNode.Create(const ASyntaxInfo: PSyntaxInfo;
-  const ASyntaxPath, ASyntaxName, ASyntaxFileExtension: string);
+constructor TSyntaxNode.Create;
 begin
   Self.FSyntaxInfo := ASyntaxInfo;
   Self.FSyntaxPath := ASyntaxPath;
@@ -89,7 +88,7 @@ begin
   Self.FSyntaxFileExtension := ASyntaxFileExtension;
 end;
 
-procedure TSyntaxNode.UpdateSyntaxFile();
+procedure TSyntaxNode.UpdateSyntaxFile;
 var
   SyntaxFile: file of TSyntaxInfo;
   FileName: string;	
@@ -112,7 +111,7 @@ end;
 
 { private }
 
-procedure TSyntaxList.FillListAsDefault();
+procedure TSyntaxList.FillListAsDefault;
 const
   CSharpReserved: TReserved =
                   ('abstract', 'as', 'base', 'bool', 'break', 'byte', 'case',
@@ -224,7 +223,7 @@ begin
     Self.FSyntaxFileExtension).UpdateSyntaxFile();
 end;
 
-function TSyntaxList.GetNodeByCodeExtension(const ACodeExtension: string): TSyntaxNode;
+function TSyntaxList.GetNodeByCodeExtension;
 var
   CurrSyntaxNode: TSyntaxNode;
 begin
@@ -243,7 +242,7 @@ begin
   Result := nil;
 end;
 
-function TSyntaxList.GetNodeBySyntaxName(const ASyntaxName: string): TSyntaxNode;
+function TSyntaxList.GetNodeBySyntaxName;
 var
   CurrSyntaxNode: TSyntaxNode;
 begin
@@ -262,7 +261,7 @@ begin
   Result := nil;
 end;
 
-function TSyntaxList.GetSyntaxByName(const ASyntaxName: string): PSyntaxInfo;
+function TSyntaxList.GetSyntaxByName;
 var
   SyntaxNode: TSyntaxNode;
 begin
@@ -273,7 +272,7 @@ begin
     Result := nil;
 end;
 
-function TSyntaxList.GetSyntaxInfoFromFile(const APathToFile: string): TSyntaxInfo;
+function TSyntaxList.GetSyntaxInfoFromFile;
 var
   SyntaxFile: file of TSyntaxInfo;
   SyntaxInfo: TSyntaxInfo;
@@ -287,7 +286,7 @@ begin
   Result := SyntaxInfo;
 end;
 
-procedure TSyntaxList.RemoveNode(var ASyntaxNode: TSyntaxNode);
+procedure TSyntaxList.RemoveNode;
 begin
   if (ASyntaxNode <> Self.FHead) and (ASyntaxNode <> Self.FTail) then
   begin
@@ -316,7 +315,7 @@ end;
 
 { public }
 
-constructor TSyntaxList.Create(const ASyntaxPath: string);
+constructor TSyntaxList.Create;
 const
   FileExtension = '.syntax';
 begin
@@ -324,8 +323,7 @@ begin
   Self.FSyntaxFileExtension := FileExtension;
 end;
 
-procedure TSyntaxList.AppendSyntax(const ASyntax: PSyntaxInfo;
-  const ASyntaxName: string);
+procedure TSyntaxList.AppendSyntax;
 var
   SyntaxNode: TSyntaxNode;
 begin
@@ -348,7 +346,7 @@ begin
   Inc(Self.FSyntaxesCount);
 end;
 
-function TSyntaxList.CheckFileForCode(const AFilePath: string): string;
+function TSyntaxList.CheckFileForCode;
 const
   FilePattern: string = '\.(.+)$'; // Regular expression
 var
@@ -370,7 +368,7 @@ begin
     Result := '';
 end;
 
-procedure TSyntaxList.ClearSyntaxList();
+procedure TSyntaxList.ClearSyntaxList;
 var
   CurrSyntaxNode: TSyntaxNode;
 begin
@@ -388,14 +386,12 @@ begin
   Self.FSyntaxesCount := 0;
 end;
 
-procedure TSyntaxList.CreateDefaultSyntaxes();
+procedure TSyntaxList.CreateDefaultSyntaxes;
 begin
   Self.FillListAsDefault();
 end;
 
-function TSyntaxList.CreateSyntaxInfo(const ACodeFileExtension: shortString;
-  const AReservedWords: TReserved; const ASingleLineComment,
-  AMultiLineCommentBegin, AMultiLineCommentEnd: shortString): TSyntaxInfo;
+function TSyntaxList.CreateSyntaxInfo;
 var
   SyntaxInfo: TSyntaxInfo;
 begin
@@ -411,7 +407,7 @@ begin
   Result := SyntaxInfo;
 end;
 
-function TSyntaxList.GetAllLanguages(): TLangNames;
+function TSyntaxList.GetAllLanguages;
 var
   CurrSyntaxNode: TSyntaxNode;
   i: integer;
@@ -427,12 +423,12 @@ begin
     end;
 end;
 
-function TSyntaxList.GetSyntaxesCount(): Integer;
+function TSyntaxList.GetSyntaxesCount;
 begin
   Result := Self.FSyntaxesCount;
 end;
 
-function TSyntaxList.IsSyntaxExist(const ASyntaxName: string): boolean;
+function TSyntaxList.IsSyntaxExist;
 var
   SyntaxNode: TSyntaxNode;
 begin
@@ -443,7 +439,7 @@ begin
     Result := True;
 end;
 
-procedure TSyntaxList.LoadExistingSyntaxFiles();
+procedure TSyntaxList.LoadExistingSyntaxFiles;
 const
   StrFilePattern = 'syntaxes\\(.+)\.syntax$'; // Regular expression
 var
@@ -464,7 +460,7 @@ begin
   end;
 end;
 
-procedure TSyntaxList.RemoveSyntaxByName(const ASyntaxName: string);
+procedure TSyntaxList.RemoveSyntaxByName;
 var
   SyntaxNode: TSyntaxNode;
 begin
@@ -474,7 +470,7 @@ begin
     Self.RemoveNode(SyntaxNode);
 end;
 
-procedure TSyntaxList.SaveSyntaxFiles();
+procedure TSyntaxList.SaveSyntaxFiles;
 var
   CurrSyntaxNode: TSyntaxNode;
 begin

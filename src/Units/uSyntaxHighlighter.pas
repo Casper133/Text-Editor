@@ -29,14 +29,14 @@ procedure HighlightText(var ASyntaxList: TSyntaxList; const ASyntaxName: string;
 
 implementation
 
-procedure RepaintOff(var ARichEdit: TRichEdit; var AEventMask: Integer);
+procedure RepaintOff;
 begin
   ARichEdit.DoubleBuffered := True;
   SendMessage(ARichEdit.Handle, WM_SETREDRAW, 0, 0);
   AEventMask := SendMessage(ARichEdit.Handle, WM_USER + 69, 0, 0);
 end;
 
-procedure RepaintRichEdit(var ARichEdit: TRichEdit; var AEventMask: Integer);
+procedure RepaintRichEdit;
 begin
   SendMessage(ARichEdit.Handle, WM_SETREDRAW, 1, 0);
   InvalidateRect(ARichEdit.Handle, nil, True);
@@ -45,20 +45,19 @@ begin
   ARichEdit.Repaint;
 end;
 
-procedure SaveSelects(var ARichEdit: TRichEdit; var ASelStart, ASelLen: Integer);
+procedure SaveSelects;
 begin
   ASelStart := ARichEdit.SelStart;
   ASelLen := ARichEdit.SelLength;
 end;
 
-procedure LoadSelects(var ARichEdit: TRichEdit; var ASelStart, ASelLen: Integer);
+procedure LoadSelects;
 begin
   ARichEdit.SelStart := ASelStart;
   ARichEdit.SelLength := ASelLen;
 end;
 
-procedure SaveScrolls(var ARichEdit: TRichEdit; var AScrollInfoH,
-  AScrollInfoV: tagSCROLLINFO);
+procedure SaveScrolls;
 begin
   FillChar(AScrollInfoV, SizeOf(AScrollInfoV), 0);
   AScrollInfoV.cbSize := SizeOf(AScrollInfoV);
@@ -72,8 +71,7 @@ begin
   GetScrollInfo(ARichEdit.Handle, SB_HORZ, AScrollInfoH);
 end;
 
-procedure LoadScrolls(var ARichEdit: TRichEdit; var AScrollInfoH,
-  AScrollInfoV: tagSCROLLINFO);
+procedure LoadScrolls;
 begin
   ARichEdit.Perform(WM_VSCROLL, SB_THUMBPOSITION +
     AScrollInfoV.nPos * 65536, 0);
@@ -81,7 +79,7 @@ begin
     AScrollInfoH.nPos * 65536, 0);
 end;
 
-procedure FillMemoryRichEdit(var ARichEditMain, ARichEditCopy: TRichEdit);
+procedure FillMemoryRichEdit;
 var
   MemoryStream: TMemoryStream;
 begin
@@ -97,7 +95,7 @@ begin
   end;
 end;
 
-procedure FillMainRichEdit(var ARichEditMain, ARichEditCopy: TRichEdit);
+procedure FillMainRichEdit;
 var
   MemoryStream: TMemoryStream;
 begin
@@ -115,9 +113,7 @@ begin
 end;
 
 
-procedure Highlight(var i: Integer; const ATextLen,
-  ALinesCount: Integer; const ATextCopy, ASLineComment, ADelimiters: string;
-  var ARichEditCopy: TRichEdit; const AReservedWords: TReserved);
+procedure Highlight;
 var
   PossibleRWord, TextBuf: string;
   IsHightlightPossible: Boolean;
@@ -180,8 +176,7 @@ begin
 end;
 
 
-procedure HighlightText(var ASyntaxList: TSyntaxList; const ASyntaxName: string;
-  var ARichEditMain, ARichEditCopy: TRichEdit);
+procedure HighlightText;
 const
   Delimiters: string = ' ,(){}[]-+*%/=~!&|<>?:;.' + #$D#$A;
 
